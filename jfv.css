@@ -1,0 +1,30 @@
+body {
+    background: #eae8e8;
+    margin-left: calc(4vw);
+    margin-top: calc(11vh);
+}
+
+.container {
+    background: white;
+    padding: 50px;
+}
+
+.t {
+    margin-bottom: 10px;
+    width: 441px;
+    padding-left: 5px;
+}
+
+.jfv-input-invalid { border: 1px solid #F44336 !important; }
+.jfv-input-valid { border: 1px solid #28a745 !important; }
+.jfv-input-information { border: 1px solid #0082ca !important; }
+
+.jfv-input-invalid:focus { border: 1px solid #F44336 !important; }
+.jfv-input-valid:focus { border: 1px solid #28a745 !important; }
+.jfv-input-information:focus { border: 1px solid #0082ca !important; }
+
+.jfv-label-invalid { color: #F44336 }
+.jfv-label-valid { color: #28a745 }
+.jfv-label-information { color: #0082ca }
+
+.jfv-display-error-message { margin-top: 10px !important; }
