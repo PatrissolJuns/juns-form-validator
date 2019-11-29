@@ -1,7 +1,26 @@
+/**
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *                                                                         *
+ *                                                                         *
+ * Welcome to the Juns Form Validator                                      *
+ *                                                                         *
+ * by PatrissolJuns                                                        *
+ *                                                                         *
+ *                                                                         *
+ * This is a mini library to rapidly handle the validation of a form       *
+ *                                                                         *
+ * It provide many shortcut and attribute in order to function             *
+ *                                                                         *
+ *                                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
+
+
 /* ************** Validator Functions ************** */
 
 /**
  * The functions with somethingChecker is used to check a special parameter of an input
+ *
  * @param element Element or input to test
  * @returns {*[]} Contains the validation state and the message. E.g: [false, "The age must be less than 150"]
  */
@@ -10,56 +29,6 @@ const validationCLass = {
     input: ['jfv-input-valid', 'jfv-input-invalid', 'jfv-input-information'],
     label: ['jfv-label-valid', 'jfv-label-invalid', 'jfv-label-information']
 };
-
-/*function dateChecker(element) {
-    // let regex2 = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
-    let date = element.val();
-
-    // format date to the format dd-mm-yyy
-    let regex2 = /^(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[012])[-]\d{4}$/;
-
-    if(regex2.test(date)) {
-        let date_splited = date.split('-');
-        let day = date_splited[0];
-        let month = date_splited[1];
-        let year = date_splited[2];
-
-        // day must be beetween 1 and 31
-        // month like April, June, September, November must be 30 at most
-        if( (day < 1 && day > 31) && ([4,6,9,11].includes(month) && day > 30) ) {
-            return [false, "Jour invalide. Veuillez saisir un jour compris entre 01 et le 31."];
-        }
-        // month must be beetween 1 and 12
-        else if(month < 1 && month > 12) {
-            return [false, "Mois invalide. Veuillez saisir un mois compris entre 01 et le 12."];
-        }
-        // Heylo accpts at least 21 years old.
-        else if(year > 1998) {
-            return [false, "Désole vous devez avoir au moins 21 ans pour pourvoir vous enregistrer."];
-        }
-        // Test on Febuary
-        else if(month == 2) {
-            // if the year is a leap year (bissextille)
-            if ( (year % 4 == 0 && year % 100 != 0) || year % 400 == 0 ){
-                // then The month will have at most 29
-                if( day > 29) {
-                    return [false, "Jour invalide. Le jour doit être compris entre 01 et 29"];
-                }
-                else {
-                    return [true, ""];
-                }
-            }
-            // then The month will have at most 28
-            else if(day > 28)
-                return [false, "Jour invalide. Le jour doit être compris entre 01 et 28"];
-            // everything is ok
-            else return [true, ""];
-        }
-        // everything is ok
-        else return [true, ""];
-    }
-    else return [false, "Veuillez entrer un format valide SVP. JJ-MM-AAAA"];
-}*/
 
 /**
  * @param element
