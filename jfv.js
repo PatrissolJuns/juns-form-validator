@@ -31,6 +31,96 @@ const validationCLass = {
 };
 
 /**
+ * This function returns the list of all attributes of an element
+ */
+(function(old) {
+    $.fn.attr = function() {
+        if(arguments.length === 0) {
+            if(this.length === 0) {
+                return null;
+            }
+
+            var obj = {};
+            $.each(this[0].attributes, function() {
+                if(this.specified) {
+                    obj[this.name] = this.value;
+                }
+            });
+            return obj;
+        }
+
+        return old.apply(this, arguments);
+    };
+})($.fn.attr);
+
+
+/**
+ * This function returns the list of all jfv attributes of an element
+ */
+(function(old) {
+    $.fn.jfv = function() {
+        console.log('arguments = ',arguments);
+        if(arguments.length === 0) {
+            console.log('sdqsdqs');
+            // First obtain an array which contains only a couple of jfv attribute and its value
+            let entries = Object.entries(this.attr()).filter(a => /jfv/.test(a[0]));
+
+            let jfv_entries = entries.filter(a => /jfv/.test(a[0]));
+
+            // Check if the array is empty
+            if(jfv_entries.length === 0) return [];
+
+            // Then map the obtained array to get an array with only the right attribute
+            return jfv_entries.map(a => [a[0].replace('jfv-', ''), a[1]]);
+        }
+        else if(arguments.length === 1) {
+            // Get the list of all jfv attributes
+            let jfvAttributes = this.jfv();
+            console.log('jfvAttributes = ',jfvAttributes);
+            // Check if the list is not empty
+            if(jfvAttributes.length > 0) {
+                // Get the item of the array which contains the attribute argument
+                let result = jfvAttributes.filter(a => a[0] === arguments[0]);
+
+                if(result.length === 0) return undefined;
+
+                // Return the value of the attribute
+                return result[0][1];
+            }
+        }
+
+        return [];
+    };
+})($.fn.jfv);
+
+/**
+ * This function is used to get the value of a jfv element
+ *
+ * E.g: $('#my-input-text').jfv('min'); // return the value of the attribute jfv-min
+ */
+/*(function(old) {
+    $.fn.jfv = function(attribute) {
+        if(arguments.length === 1) {
+            // Get the list of all jfv attributes
+            let jfvAttributes = this.jfv();
+            console.log('jfvAttributes = ',jfvAttributes);
+            // Check if the list is not empty
+            if(jfvAttributes.length > 0) {
+                // Get the item of the array which contains the attribute argument
+                let result = jfvAttributes.filter(a => a[0] === attribute);
+
+                if(result.length === 0) return undefined;
+
+                // Return the value of the attribute
+                return result[0][1];
+            }
+        }
+        return undefined;
+    };
+})($.fn.jfv);*/
+
+
+/**
  * @param element
  * @returns {[boolean,string]}
  */
