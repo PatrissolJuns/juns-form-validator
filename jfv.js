@@ -257,7 +257,8 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
     if($(element).jfv("label")) {
         try
         {
-            let label = document.getElementById($(element).jfv("label"));
+            let label = document.querySelector("label[for="+ $(element).jfv("label") +"]");
+            if(!label) label = document.getElementById($(element).jfv("label"));
             // Set red or blue color on the input label if it exist
             if(isOnSubmit) {
                 label.classList.remove(validationCLass.label[2]);
@@ -413,8 +414,6 @@ function validator(form, isOnSubmit = false) {
             if($(element).jfv() !== []){
                 if(($(element).jfv("validate") && $(element).jfv("validate") !== 'false')
                     || !$(element).jfv("validate")) {
-                    /* console.log('here = ',$(element));
-                    console.log('here = ',$(element).jfv()); */
                     if(element.type !== "hidden" && element.type !== "file")
                     {
                         element.addEventListener("focus", function() {
