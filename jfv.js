@@ -108,7 +108,7 @@ const validationCLass = {
  */
 function emptyChecker(element) {
     console.log("element.value.length = ",element.value.length);
-    if (element.value.length > 510) return [false, `Veuillez entrer au plus 510 caractère(s)`];
+    if (element.value.length > 510) return [false, `Please enter at most 510 character(s)`];
     else return [true, ""];
 }
 
@@ -121,7 +121,7 @@ function emailChecker(element) {
     let regex = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i;
 
     return regex.test(element.value) === true ? [true, ""] :
-        [false, "Veuillez entrer une adresse mail valide"];
+        [false, "Please enter a valid email address"];
 }
 
 /**
@@ -146,7 +146,7 @@ function phoneChecker(element) {
  */
 function numberChecker(element) {
     let rangeResult = [true, ""];
-    let integerResult = /^[+-]?\d+(\.\d+)?$/.test(element.value) ? [true, ""] : [false, "Veuillez entrer un nombre"];
+    let integerResult = /^[+-]?\d+(\.\d+)?$/.test(element.value) ? [true, ""] : [false, "Please enter a number"];
 
     if($(element).jfv("min") || $(element).jfv("max")) {
         let length = Number(element.value);
@@ -160,7 +160,7 @@ function numberChecker(element) {
         let length = Number(element.value);
         let equalLength = Number($(element).jfv("equal")) ? Number($(element).jfv("equal")) : 10;
 
-        rangeResult = (length === equalLength) ? [true, ""] : [false, `Veuillez entrer exactement le nombre ${equalLength}`];
+        rangeResult = (length === equalLength) ? [true, ""] : [false, `Please enter exactly the number ${equalLength}`];
     }
 
     if(!integerResult[0] && rangeResult[0])  return integerResult;
@@ -174,7 +174,7 @@ function numberChecker(element) {
  * @returns {[boolean,string]}
  */
 function requiredChecker(element) {
-    if (element.value.length <= 0) return [false, 'Ce champ est obligatoire'];
+    if (element.value.length <= 0) return [false, 'This field is required'];
     return [true, ""];
 }
 
@@ -187,8 +187,8 @@ function minMaxChecker(element) {
     let minLength = Number($(element).jfv("min")) ? Number($(element).jfv("min")) : 2;
     let maxLength = Number($(element).jfv("max")) ? Number($(element).jfv("max")) : 255;
 
-    if (length < minLength) return [false, `Veuillez entrer au moins ${minLength} caractère(s)`];
-    else if (length > maxLength) return [false, `Veuillez entrer au plus ${minLength} caractère(s)`];
+    if (length < minLength) return [false, `Please enter at least ${minLength} character(s)`];
+    else if (length > maxLength) return [false, `Please enter at most ${minLength} character(s)`];
     else return [true, ""];
 }
 
@@ -200,7 +200,7 @@ function equalChecker(element) {
     let length = Number(element.value.length);
     let equal = Number($(element).jfv("equal")) ? Number($(element).jfv("equal")) : 2;
 
-    return length === equal ? [true, ""] : [false, `Veuillez entrer exactement ${equal} caractère(s)`];
+    return length === equal ? [true, ""] : [false, `Please enter excatly ${minLength} character(s)`];
 }
 
 
@@ -211,7 +211,7 @@ function equalChecker(element) {
 function passwordConfirmationChecker(element){
     let password = document.getElementById($(element).jfv("ref") ? $(element).jfv("ref") : 'password');
 
-    if(element.value !== password.value) return [false, "Le mot de passe doit être identique"];
+    if(element.value !== password.value) return [false, "Password must be the same"];
     else return [true, ""];
 }
 
@@ -336,8 +336,8 @@ function removeErrorMessage() {
 function secondTypeValidator(element) {
     let secondType = $(element).jfv("type");
 
-    if(secondType === 'phone') return phoneChecker(element);
-    else if(secondType === "required") return requiredChecker(element);
+    //if(secondType === 'phone') return phoneChecker(element);
+    if(secondType === "required") return requiredChecker(element);
     else if(secondType === "empty") return emptyChecker(element);
     else if(secondType === "range") return minMaxChecker(element);
     else if(secondType === "equal") return equalChecker(element);
