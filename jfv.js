@@ -63,37 +63,39 @@ const validationCLass = {
  */
 (function(old) {
     $.fn.jfv = function() {
+        
         if(this === undefined || this === null)
         {
             return arguments.length === 0 ? [] : undefined;
         }
         if(arguments.length === 0) {
+            
             // First obtain an array which contains only a couple of jfv attribute and its value
-            let entries = Object.entries(this[0].attributes).filter(a => /jfv/.test(a[0]));
-
-            // Filter the array to get only the jfv attributes
-            let jfv_entries = entries.filter(a => /jfv/.test(a[0]));
+            let jfvEntries = Object.entries(this[0].attributes)
+                                .map(attr => [attr[1].name, attr[1].value])
+                                .filter(a => /jfv/.test(a[0]));
 
             // Check if the array is empty
-            if(jfv_entries.length === 0) return [];
+            if(jfvEntries.length === 0) return [];
 
             // Then map the obtained array to get an array with only the right attribute
-            return jfv_entries.map(a => [a[0].replace('jfv-', ''), a[1]]);
+            return jfvEntries.map(a => a[0].replace('jfv-', ''));
         }
         else if(arguments.length === 1) {
-            // Get the list of all jfv attributes
-            let jfvAttributes = this.jfv();
+            // Create a regex composed with the argument
+            let regex = new RegExp("jfv-"+arguments[0]);
 
-            // Check if the list is not empty
-            if(jfvAttributes.length > 0) {
-                // Get the item of the array which contains the attribute argument
-                let result = jfvAttributes.filter(a => a[0] === arguments[0]);
+            // Map the array of all attributes to get a new one with only attribute's name and value
+            // Filter the obtained array to get only the jfv attribute and its value
+            let result = Object.entries(this[0].attributes)
+                                .map(attr => [attr[1].name, attr[1].value])
+                                .filter(a => regex.test(a[0]));
 
-                if(result.length === 0) return undefined;
+            // Check if the argument has been found into jfv array
+            if(result.length === 0) return undefined;
 
-                // Return the value of the attribute
-                return result[0][1];
-            }
+            // Return the value of the attribute
+            return result[0][1];
         }
 
         return [];
@@ -411,7 +413,8 @@ function validator(form, isOnSubmit = false) {
             if($(element).jfv() !== []){
                 if(($(element).jfv("validate") && $(element).jfv("validate") !== 'false')
                     || !$(element).jfv("validate")) {
-
+                    /* console.log('here = ',$(element));
+                    console.log('here = ',$(element).jfv()); */
                     if(element.type !== "hidden" && element.type !== "file")
                     {
                         element.addEventListener("focus", function() {
