@@ -1,65 +1,102 @@
+/**
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *                                                                         *
+ *                                                                         *
+ * Welcome to the Juns Form Validator                                      *
+ *                                                                         *
+ * by PatrissolJuns                                                        *
+ *                                                                         *
+ *                                                                         *
+ * This is a mini library to rapidly handle the validation of a form       *
+ *                                                                         *
+ * It provide many shortcut and attribute in order to function             *
+ *                                                                         *
+ *                                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
+
+
 /* ************** Validator Functions ************** */
 
 /**
  * The functions with somethingChecker is used to check a special parameter of an input
+ *
  * @param element Element or input to test
  * @returns {*[]} Contains the validation state and the message. E.g: [false, "The age must be less than 150"]
  */
 
-const validationCLass = {
-    input: ['jfv-input-valid', 'jfv-input-invalid', 'jfv-input-information'],
-    label: ['jfv-label-valid', 'jfv-label-invalid', 'jfv-label-information']
-};
 
-/*function dateChecker(element) {
-    // let regex2 = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
-    let date = element.val();
-
-    // format date to the format dd-mm-yyy
-    let regex2 = /^(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[012])[-]\d{4}$/;
-
-    if(regex2.test(date)) {
-        let date_splited = date.split('-');
-        let day = date_splited[0];
-        let month = date_splited[1];
-        let year = date_splited[2];
-
-        // day must be beetween 1 and 31
-        // month like April, June, September, November must be 30 at most
-        if( (day < 1 && day > 31) && ([4,6,9,11].includes(month) && day > 30) ) {
-            return [false, "Jour invalide. Veuillez saisir un jour compris entre 01 et le 31."];
-        }
-        // month must be beetween 1 and 12
-        else if(month < 1 && month > 12) {
-            return [false, "Mois invalide. Veuillez saisir un mois compris entre 01 et le 12."];
-        }
-        // Heylo accpts at least 21 years old.
-        else if(year > 1998) {
-            return [false, "Désole vous devez avoir au moins 21 ans pour pourvoir vous enregistrer."];
-        }
-        // Test on Febuary
-        else if(month == 2) {
-            // if the year is a leap year (bissextille)
-            if ( (year % 4 == 0 && year % 100 != 0) || year % 400 == 0 ){
-                // then The month will have at most 29
-                if( day > 29) {
-                    return [false, "Jour invalide. Le jour doit être compris entre 01 et 29"];
-                }
-                else {
-                    return [true, ""];
-                }
+/**
+ * This function returns the list of all attributes of an element
+ */
+(function(old) {
+    $.fn.attr = function() {
+        if(arguments.length === 0) {
+            if(this.length === 0) {
+                return null;
             }
-            // then The month will have at most 28
-            else if(day > 28)
-                return [false, "Jour invalide. Le jour doit être compris entre 01 et 28"];
-            // everything is ok
-            else return [true, ""];
+
+            var obj = {};
+            $.each(this[0].attributes, function() {
+                if(this.specified) {
+                    obj[this.name] = this.value;
+                }
+            });
+            return obj;
         }
-        // everything is ok
-        else return [true, ""];
-    }
-    else return [false, "Veuillez entrer un format valide SVP. JJ-MM-AAAA"];
-}*/
+
+        return old.apply(this, arguments);
+    };
+})($.fn.attr);
+
+
+/**
+ * This function with no argument returns the list of all jfv attributes of an element
+ *
+ * with one argument returns the value of the jfv element
+ *
+ * E.g: $('#my-input-text').jfv('min'); // return the value of the attribute jfv-min
+ */
+(function(old) {
+    $.fn.jfv = function() {
+        
+        if(this === undefined || this === null)
+        {
+            return arguments.length === 0 ? [] : undefined;
+        }
+        if(arguments.length === 0) {
+            
+            // First obtain an array which contains only a couple of jfv attribute and its value
+            let jfvEntries = Object.entries(this[0].attributes)
+                                .map(attr => [attr[1].name, attr[1].value])
+                                .filter(a => /jfv/.test(a[0]));
+
+            // Check if the array is empty
+            if(jfvEntries.length === 0) return [];
+
+            // Then map the obtained array to get an array with only the right attribute
+            return jfvEntries.map(a => a[0].replace('jfv-', ''));
+        }
+        else if(arguments.length === 1) {
+            // Create a regex composed with the argument
+            let regex = new RegExp("jfv-"+arguments[0]);
+
+            // Map the array of all attributes to get a new one with only attribute's name and value
+            // Filter the obtained array to get only the jfv attribute and its value
+            let result = Object.entries(this[0].attributes)
+                                .map(attr => [attr[1].name, attr[1].value])
+                                .filter(a => regex.test(a[0]));
+
+            // Check if the argument has been found into jfv array
+            if(result.length === 0) return undefined;
+
+            // Return the value of the attribute
+            return result[0][1];
+        }
+
+        return [];
+    };
+})($.fn.jfv);
 
 /**
  * @param element
@@ -67,7 +104,7 @@ const validationCLass = {
  */
 function emptyChecker(element) {
     console.log("element.value.length = ",element.value.length);
-    if (element.value.length > 510) return [false, `Veuillez entrer au plus 510 caractère(s)`];
+    if (element.value.length > 510) return [false, `Please enter at most 510 character(s)`];
     else return [true, ""];
 }
 
@@ -80,7 +117,7 @@ function emailChecker(element) {
     let regex = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i;
 
     return regex.test(element.value) === true ? [true, ""] :
-        [false, "Veuillez entrer une adresse mail valide"];
+        [false, "Please enter a valid email address"];
 }
 
 /**
@@ -93,9 +130,9 @@ function phoneChecker(element) {
     let regex = /^(2|6)[0-9]{8}$/ig;
 
     //Check the length of the number
-    if(element.dataset.hasOwnProperty("optional") && element.value === "") return [true, ""];
+    if($(element).jfv("optional") != undefined && element.value === "") return [true, ""];
     else if(number_length < 9 || number_length > 9) return [false, "Le numéro doit avoir exactement 9 chiffres"];
-    else if(! regex.test(element.value) ) return [false, "Veuillez entrer un numéro au format camerounais"];
+    else if( !regex.test(element.value) ) return [false, "Veuillez entrer un numéro au format camerounais"];
     else return [true, ''];
 }
 
@@ -105,21 +142,21 @@ function phoneChecker(element) {
  */
 function numberChecker(element) {
     let rangeResult = [true, ""];
-    let integerResult = /^[+-]?\d+(\.\d+)?$/.test(element.value) ? [true, ""] : [false, "Veuillez entrer un nombre"];
+    let integerResult = /^[+-]?\d+(\.\d+)?$/.test(element.value) ? [true, ""] : [false, "Please enter a number"];
 
-    if(element.dataset.hasOwnProperty("min") || element.dataset.hasOwnProperty("max")) {
+    if($(element).jfv("min") || $(element).jfv("max")) {
         let length = Number(element.value);
-        let minLength = Number(element.dataset.hasOwnProperty("min")) ? Number(element.dataset.min) : 2;
-        let maxLength = Number(element.dataset.hasOwnProperty("max")) ? Number(element.dataset.max) : 255;
+        let minLength = Number($(element).jfv("min")) ? Number($(element).jfv("min")) : 2;
+        let maxLength = Number($(element).jfv("max")) ? Number($(element).jfv("max")) : 255;
 
         // rangeResult = (length >= minLength && length <= maxLength) ? [true, ""] : [false, `Veuillez entrer un nombre compris entre ${minLength} et ${maxLength}`];
         rangeResult = (length >= minLength && length <= maxLength) ? [true, ""] : [false, `Please enter a number between ${minLength} and ${maxLength}`];
     }
-    else if (element.dataset.hasOwnProperty("equal")) {
+    else if ($(element).jfv("equal")) {
         let length = Number(element.value);
-        let equalLength = Number(element.dataset.hasOwnProperty("equal")) ? Number(element.dataset.equal) : 10;
+        let equalLength = Number($(element).jfv("equal")) ? Number($(element).jfv("equal")) : 10;
 
-        rangeResult = (length === equalLength) ? [true, ""] : [false, `Veuillez entrer exactement le nombre ${equalLength}`];
+        rangeResult = (length === equalLength) ? [true, ""] : [false, `Please enter exactly the number ${equalLength}`];
     }
 
     if(!integerResult[0] && rangeResult[0])  return integerResult;
@@ -133,7 +170,7 @@ function numberChecker(element) {
  * @returns {[boolean,string]}
  */
 function requiredChecker(element) {
-    if (element.value.length <= 0) return [false, 'Ce champ est obligatoire'];
+    if (element.value.length <= 0) return [false, 'This field is required'];
     return [true, ""];
 }
 
@@ -143,11 +180,11 @@ function requiredChecker(element) {
  */
 function minMaxChecker(element) {
     let length = Number(element.value.length);
-    let minLength = Number(element.dataset.hasOwnProperty("min")) ? Number(element.dataset.min) : 2;
-    let maxLength = Number(element.dataset.hasOwnProperty("max")) ? Number(element.dataset.max) : 255;
+    let minLength = Number($(element).jfv("min")) ? Number($(element).jfv("min")) : 2;
+    let maxLength = Number($(element).jfv("max")) ? Number($(element).jfv("max")) : 255;
 
-    if (length < minLength) return [false, `Veuillez entrer au moins ${minLength} caractère(s)`];
-    else if (length > maxLength) return [false, `Veuillez entrer au plus ${minLength} caractère(s)`];
+    if (length < minLength) return [false, `Please enter at least ${minLength} character(s)`];
+    else if (length > maxLength) return [false, `Please enter at most ${minLength} character(s)`];
     else return [true, ""];
 }
 
@@ -157,9 +194,9 @@ function minMaxChecker(element) {
  */
 function equalChecker(element) {
     let length = Number(element.value.length);
-    let equal = Number(element.dataset.hasOwnProperty("equal")) ? Number(element.dataset.equal) : 2;
+    let equal = Number($(element).jfv("equal")) ? Number($(element).jfv("equal")) : 2;
 
-    return length === equal ? [true, ""] : [false, `Veuillez entrer exactement ${equal} caractère(s)`];
+    return length === equal ? [true, ""] : [false, `Please enter excatly ${minLength} character(s)`];
 }
 
 
@@ -168,11 +205,16 @@ function equalChecker(element) {
  * @returns {[boolean,string]}
  */
 function passwordConfirmationChecker(element){
-    let password = document.getElementById(element.dataset.hasOwnProperty("ref") ? element.dataset.ref : 'password');
+    let password = document.getElementById($(element).jfv("ref") ? $(element).jfv("ref") : 'password');
 
-    if(element.value !== password.value) return [false, "Le mot de passe doit être identique"];
+    if(element.value !== password.value) return [false, "Password must be the same"];
     else return [true, ""];
 }
+
+const validationCLass = {
+    input: ['jfv-input-valid', 'jfv-input-invalid', 'jfv-input-information'],
+    label: ['jfv-label-valid', 'jfv-label-invalid', 'jfv-label-information']
+};
 
 /**
  * @param element
@@ -183,8 +225,8 @@ function setValidIndicator(element){
     element.classList.add(validationCLass.input[0]);
 
     // check whether the input's label will be modified
-    if(element.dataset.hasOwnProperty("label")) {
-        let label = document.getElementById(element.dataset.label);
+    if($(element).jfv("label")) {
+        let label = document.getElementById($(element).jfv("label"));
         try
         {
             label.classList.remove(validationCLass.label[1]);
@@ -213,10 +255,11 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
     }
 
     // check whether the input's label will be modified
-    if(element.dataset.hasOwnProperty("label")) {
+    if($(element).jfv("label")) {
         try
         {
-            let label = document.getElementById(element.dataset.label);
+            let label = document.querySelector("label[for="+ $(element).jfv("label") +"]");
+            if(!label) label = document.getElementById($(element).jfv("label"));
             // Set red or blue color on the input label if it exist
             if(isOnSubmit) {
                 label.classList.remove(validationCLass.label[2]);
@@ -292,10 +335,10 @@ function removeErrorMessage() {
  * @returns {[boolean|string]}
  */
 function secondTypeValidator(element) {
-    let secondType = element.dataset.type;
+    let secondType = $(element).jfv("type");
 
-    if(secondType === 'phone') return phoneChecker(element);
-    else if(secondType === "required") return requiredChecker(element);
+    //if(secondType === 'phone') return phoneChecker(element);
+    if(secondType === "required") return requiredChecker(element);
     else if(secondType === "empty") return emptyChecker(element);
     else if(secondType === "range") return minMaxChecker(element);
     else if(secondType === "equal") return equalChecker(element);
@@ -321,12 +364,12 @@ function inputValidator(element, isOnSubmit = false) {
     // Call of the different type of validation
     if(element.tagName === 'INPUT')
     {
-        if(element.dataset.hasOwnProperty("optional") && element.value === "") object = [true, ""];
+        if($(element).jfv("optional") && element.value === "") object = [true, ""];
         else if(type === 'email') object = emailChecker(element);
         else if(type === 'number') object = numberChecker(element);
 
         // check for password input according to our password input behavior
-        else if(element.dataset.hasOwnProperty("type") && element.dataset.type === 'password')
+        else if($(element).jfv("type") && $(element).jfv("type") === 'password')
         {
             isPasswordInput = true;
             if(element.name === 'password_confirmation') object = passwordConfirmationChecker(element);
@@ -335,13 +378,13 @@ function inputValidator(element, isOnSubmit = false) {
 
         else if(type === 'text')
         {
-            if(element.dataset.hasOwnProperty("type"))
+            if($(element).jfv("type"))
                 object = secondTypeValidator(element);
         }
     }
     else if(element.tagName === 'TEXTAREA')
     {
-        if(element.dataset.hasOwnProperty("type"))
+        if($(element).jfv("type"))
             object = secondTypeValidator(element);
     }
     else if(element.tagName === 'SELECT') object = [true, ""];
@@ -366,13 +409,12 @@ function validator(form, isOnSubmit = false) {
     if(form !== undefined && form.tagName === 'FORM') {
         let inputList = form.querySelectorAll('input, textarea');
 
-        for (let input in inputList) {
+        for (let input in Object.keys(inputList).filter( a => /\d/.test(a) === true)) {
             let element = inputList[input];
 
-            if(element.dataset !== undefined){
-                if((element.dataset.hasOwnProperty("validate") && element.dataset.validate !== 'false')
-                    || !element.dataset.hasOwnProperty("validate")) {
-
+            if($(element).jfv() !== []){
+                if(($(element).jfv("validate") && $(element).jfv("validate") !== 'false')
+                    || !$(element).jfv("validate")) {
                     if(element.type !== "hidden" && element.type !== "file")
                     {
                         element.addEventListener("focus", function() {
@@ -404,7 +446,7 @@ function runValidator() {
     // fetching the different forms
     for (let form in Object.keys(forms).filter( a => /\d/.test(a) === true)) {
         validator(forms[form], false);
-        if(forms[form].dataset.hasOwnProperty("ajax") && forms[form].dataset.ajax === "true") isAjax = true;
+        if($(forms[form]).jfv("ajax") && $(forms[form]).jfv("ajax") === "true") isAjax = true;
         forms[form].addEventListener("submit", function(event) {
             event.preventDefault();
             if(validator(forms[form], true)) {
