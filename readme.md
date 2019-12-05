@@ -16,7 +16,7 @@ It is very easy to use and setup.
 
 Since JFV is build with javascript and jquery so you need to import jquery at least version 2.0.
 
-So Just include `jfv.js`, `jfv.css` and `jquery.js`file.
+So just include `jfv.min.js`, `jfv.min.css` and `jquery.js`file.
 
 Then you need to bind the class `jfv-form` to the form you which to check.
 

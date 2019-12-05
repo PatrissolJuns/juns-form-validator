@@ -25,10 +25,6 @@
  * @returns {*[]} Contains the validation state and the message. E.g: [false, "The age must be less than 150"]
  */
 
-const validationCLass = {
-    input: ['jfv-input-valid', 'jfv-input-invalid', 'jfv-input-information'],
-    label: ['jfv-label-valid', 'jfv-label-invalid', 'jfv-label-information']
-};
 
 /**
  * This function returns the list of all attributes of an element
@@ -214,6 +210,11 @@ function passwordConfirmationChecker(element){
     if(element.value !== password.value) return [false, "Password must be the same"];
     else return [true, ""];
 }
+
+const validationCLass = {
+    input: ['jfv-input-valid', 'jfv-input-invalid', 'jfv-input-information'],
+    label: ['jfv-label-valid', 'jfv-label-invalid', 'jfv-label-information']
+};
 
 /**
  * @param element
