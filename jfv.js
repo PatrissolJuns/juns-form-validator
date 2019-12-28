@@ -16,14 +16,16 @@
  */
 
 
-/* ************** Validator Functions ************** */
 
-/**
- * The functions with somethingChecker is used to check a special parameter of an input
- *
- * @param element Element or input to test
- * @returns {*[]} Contains the validation state and the message. E.g: [false, "The age must be less than 150"]
- */
+/*
+let errorJSON = {
+    'fr': {
+        'number': {
+            'min': "S'il vous plait au moins ${minLength}",
+        }
+    }
+};
+*/
 
 
 /**
@@ -97,6 +99,212 @@
         return [];
     };
 })($.fn.jfv);
+
+
+const MARQUEE_BEGIN = "${";
+const MARQUEE_END = "}";
+const JFV = {
+    /**
+     * This class handle the usage of an error like get the variable into it and so on
+     *
+     * @param str: string Which represent the string to work on
+     */
+    extractor: class {
+        constructor(str) {
+            this.str = str;
+        }
+
+        /**
+         * Returns the an array which content the list of variable into the string
+         *
+         * @return Array|undefined
+         */
+        get getParams () {
+            let response = [], regex = /\${/, regex2 = /}/, BreakException = {};
+
+            try {
+                // Test if the str contains and variable
+                if (regex.test(this.str)) {
+                    // Then split the string by the marquee
+                    this.str.split('${').slice(1).map(val => {
+                        // Test if the variable is well formed and get it the true
+                        if(regex2.test(val)) response.push(val.split('}')[0]);
+
+                        // throw error
+                        else throw BreakException;
+                    });
+                }
+                return response;
+            }
+            catch (e) {
+                if (e !== BreakException) throw e;
+                else return undefined;
+            }
+        }
+
+        /**
+         * Check if a param exists into the error string
+         *
+         * @param param: String
+         * @return Boolean|undefined
+         */
+        isExist (param) {
+            // Get the list of all variable
+            let paramsArray = this.getParams;
+
+            // Check if the variable exists and return the results
+            return paramsArray ? paramsArray.includes(param) : undefined;
+        }
+
+        /**
+         * Set a value of a param into the error string
+         *
+         * @param param: string which is the param to be replaced
+         * @param value: string which is the value to replace the param
+         * @return extractor object
+         */
+        setValue (param, value) {
+            // Check if the param exists first
+            if(this.isExist(param)) {
+                // Get the string to find into the error string
+                let strToFind = MARQUEE_BEGIN + param + MARQUEE_END;
+
+                // Update the error string
+                this.str = this.str.replace(strToFind, value);
+            }
+            return this;
+        }
+
+        /**
+         * Return the error string
+         *
+         * @return string
+         */
+        get getValue () {
+            return this.str;
+        }
+
+        /**
+         * Check whether there is no left variable into the error string
+         * it means all the variable have been parsed
+         *
+         * @return Boolean
+         */
+        isFullyParsed() {
+            return !(new RegExp("\\" + MARQUEE_BEGIN, 'ig')).test(this.str)
+                && !(new RegExp(MARQUEE_END, 'ig')).test(this.str);
+        }
+    },
+
+    /**
+     * This class handle the whole error messages
+     *
+     */
+    errorMessage: class {
+        // The json which is stored the error function
+        static errorJSON = {
+            'fr-FR': {
+                'number': {
+                    'min': "S'il vous plait au moins ${minLength}",
+                    'other': 'Veillez entrer un nombre',
+                }
+            },
+            'en-EN': {
+                'number': {
+                    'min': "Please enter at least ${minLength}",
+                    'other': 'Please enter a number',
+                }
+            }
+        };
+
+        constructor() {
+            // console.log('errorJSON = ',this.constructor.errorJSON['fr-FR']['number']);
+
+            // Get the language of the browser
+            this.currentLanguage = navigator.language || navigator.userLanguage;
+
+            let LanguageError = "Unknow language";
+            try {
+                // Test if the language is handle or not
+                if(!Object.keys(this.constructor.errorJSON).includes(this.currentLanguage)) {
+                    throw LanguageError;
+                }
+            }
+            catch (e) {
+                throw e;
+            }
+
+        }
+
+        /**
+         * Get a value of a key
+         *
+         * @param key {string} E.g: 'number', 'parent.number.min'
+         */
+        getKey(key) {
+            // Test is the string is a nested one i.e something like parent.sub.key
+            if(/\./.test(key)) {
+                // Divide the key in two
+                let exp = key.split(/\.(.+)/);
+
+                // Apply the getKey function to the first key
+                let res = this.getKey(exp[0]);
+
+                // Test if the result is not undefined and then is not a string
+                if(res !== undefined && (typeof res) !== 'string') {
+
+                    // Get the value of the property where the key is the result
+                    // of the applied of the getKey function to the rest of the key
+                    return res[exp[1]];
+                }
+            }
+            // It means that it is a direct key so just find and returns the result
+            else return this.constructor.errorJSON[this.currentLanguage][key];
+        }
+
+
+    }
+};
+
+/**
+ * This function creates the chainable $.jfv function
+ *
+ *
+ */
+/*$.extend({
+    jfv: function(arguments) {
+        console.log('dqsdqsdqs = ',arguments);
+
+        let methods = {
+            extract : function() {
+                console.log('inside the extract methods');
+
+                let subMethods = {
+                    getParams: function() {
+                        console.log('inside the params');
+                        return this;
+                    }
+                }
+
+                // alert("method0");
+                return subMethods;
+            }
+        };
+        return methods;
+    }
+});*/
+
+
+
+/* ************** Validator Functions ************** */
+
+/**
+ * The functions with somethingChecker is used to check a special parameter of an input
+ *
+ * @param element Element or input to test
+ * @returns {*[]} Contains the validation state and the message. E.g: [false, "The age must be less than 150"]
+ */
+
 
 /**
  * @param element
