@@ -689,7 +689,7 @@ function setValidIndicator(element){
 
         // Get the LABEL Element of the element
         let label = $("label[for="+ element.jfv("label") +"]");
-        if(!label) label = $('#' + element.jfv("label"));
+        if(label.length <= 0) label = $('#' + element.jfv("label"));
 
         try
         {
@@ -730,12 +730,12 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
     }
 
     // check whether the input's label will be modified
-    if($(element).jfv("label")) {
+    if(element.jfv("label")) {
         try
         {
             // Get the LABEL Element of the element
-            let label = $("label[for="+ $(element).jfv("label") +"]");
-            if(!label) label = $('#' + element.jfv("label"));
+            let label = $("label[for="+ element.jfv("label") +"]");
+            if(label.length <= 0) label = $('#' + element.jfv("label"));
 
             // Set red or blue color on the input label if it exist
             if(isOnSubmit) {
@@ -743,15 +743,15 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
                 label.classList.remove(validationCLass.label[0]);
                 label.classList.add(validationCLass.label[1]);*/
 
-                label.removeClass(validationCLass.input[0], validationCLass.input[2]);
-                label.addClass(validationCLass.input[1]);
+                label.removeClass(validationCLass.label[0], validationCLass.label[2]);
+                label.addClass(validationCLass.label[1]);
             } else {
                 /*label.classList.remove(validationCLass.label[1]);
                 label.classList.remove(validationCLass.label[0]);
                 label.classList.add(validationCLass.label[2]);*/
 
-                label.removeClass(validationCLass.input[0], validationCLass.input[1]);
-                label.addClass(validationCLass.input[2]);
+                label.removeClass(validationCLass.label[0], validationCLass.label[1]);
+                label.addClass(validationCLass.label[2]);
             }
         } catch (e) {}
     }
@@ -804,13 +804,7 @@ function insertAfter(el, referenceNode, isPasswordInput = false) {
  * Remove error message
  */
 function removeErrorMessage() {
-    while ($(".jfv-display-error-message").length > 0) {
-        try {
-            $(".jfv-display-error-message").remove();
-        } catch (e) {
-            console.log("error while removing");
-        }
-    }
+    $(".jfv-display-error-message").remove();
 }
 
 
