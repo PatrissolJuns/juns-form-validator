@@ -485,7 +485,6 @@ function emptyChecker(element) {
  * @returns {[boolean,string]}
  */
 function emailChecker(element) {
-    // let match = value.match(/^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i);
     let regex = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i;
 
     return regex.test(element.val()) === true ? [true, ""] :
@@ -676,11 +675,7 @@ function passwordConfirmationChecker(element){
  *
  * @param element
  */
-function setValidIndicator(element){
-    /*element.classList.remove(validationCLass.input[1]);
-    element.classList.remove(validationCLass.input[2]);
-    element.classList.add(validationCLass.input[0]);*/
-
+function setValidIndicator(element) {
     element.removeClass(validationCLass.input[1], validationCLass.input[2]);
     element.addClass(validationCLass.input[0]);
 
@@ -693,10 +688,6 @@ function setValidIndicator(element){
 
         try
         {
-            /*label.classList.remove(validationCLass.label[1]);
-            label.classList.remove(validationCLass.label[2]);
-            label.classList.add(validationCLass.label[0]);*/
-
             label.removeClass(validationCLass.label[1], validationCLass.label[2]);
             label.addClass(validationCLass.label[0]);
         } catch (e) {}
@@ -714,16 +705,10 @@ function setValidIndicator(element){
 function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit = false){
     // Color input in red or blue
     if(isOnSubmit) {
-        /*element.classList.remove(validationCLass.input[2]);
-        element.classList.remove(validationCLass.input[0]);
-        element.classList.add(validationCLass.input[1]);*/
 
         element.removeClass(validationCLass.input[0], validationCLass.input[2]);
         element.addClass(validationCLass.input[1]);
     } else {
-        /*element.classList.remove(validationCLass.input[1]);
-        element.classList.remove(validationCLass.input[0]);
-        element.classList.add(validationCLass.input[2]);*/
 
         element.removeClass(validationCLass.input[0], validationCLass.input[1]);
         element.addClass(validationCLass.input[2]);
@@ -739,17 +724,9 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
 
             // Set red or blue color on the input label if it exist
             if(isOnSubmit) {
-                /*label.classList.remove(validationCLass.label[2]);
-                label.classList.remove(validationCLass.label[0]);
-                label.classList.add(validationCLass.label[1]);*/
-
                 label.removeClass(validationCLass.label[0], validationCLass.label[2]);
                 label.addClass(validationCLass.label[1]);
             } else {
-                /*label.classList.remove(validationCLass.label[1]);
-                label.classList.remove(validationCLass.label[0]);
-                label.classList.add(validationCLass.label[2]);*/
-
                 label.removeClass(validationCLass.label[0], validationCLass.label[1]);
                 label.addClass(validationCLass.label[2]);
             }
@@ -1035,7 +1012,7 @@ function validator(form, isOnSubmit = false) {
                         isValidArray.push(false);
                 }
             }
-        })
+        });
 
         return isValidArray.every(a => a === true);
     }
