@@ -27,9 +27,41 @@ let errorJSON = {
 };
 */
 
+/**
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *  Constant's list                                                        *
+ *                                                                         *
+ *  Delimiters of a parameter of an error message                          *
+ *                                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
+
+const MARQUEE_BEGIN = "${";
+
+const MARQUEE_END = "}";
+
+const DEFAULT_MIN_NUMBER = 2;
+
+const DEFAULT_MAX_NUMBER = 2;
+
+
+const validationCLass = {
+    input: ['jfv-input-valid', 'jfv-input-invalid', 'jfv-input-information'],
+    label: ['jfv-label-valid', 'jfv-label-invalid', 'jfv-label-information']
+};
+
+
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+
+
+
 
 /**
- * This function returns the list of all attributes of an element
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *                                                                         *
+ * This function returns the list of all attributes of an element          *
+ *                                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 (function(old) {
     $.fn.attr = function() {
@@ -51,13 +83,29 @@ let errorJSON = {
     };
 })($.fn.attr);
 
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+
+
+
 
 /**
- * This function with no argument returns the list of all jfv attributes of an element
- *
- * with one argument returns the value of the jfv element
- *
- * E.g: $('#my-input-text').jfv('min'); // return the value of the attribute jfv-min
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *                                                                         *
+ * This function with no argument returns the list of all jfv attributes   *
+ *                                                                         *
+ * of an element with one argument returns the value of the jfv element.   *
+ *                                                                         *
+ *                                                                         *
+ *  E.g: $('#my-input-text').jfv('min'); // return the value of the        *
+ *                                                                         *
+ *  attribute jfv-min                                                      *
+ *                                                                         *
+ *                                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 (function(old) {
     $.fn.jfv = function() {
@@ -100,17 +148,39 @@ let errorJSON = {
     };
 })($.fn.jfv);
 
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
-const MARQUEE_BEGIN = "${";
-const MARQUEE_END = "}";
 
+/**
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *                                                                         *
+ * This is a JSON of Class. It is used to handle internationalisation,     *
+ *                                                                         *
+ * customization of error messages and many others.                        *
+ *                                                                         *
+ *                                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
 const JFV = {
+
+
     /**
-     * This class handle the usage of an error like get the variable into it and so on
-     *
-     * @param str: string Which represent the string to work on
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     *                                                                         *
+     * This class handle the usage of an error like get the variable into it   *
+     *                                                                         *
+     *  and so on.                                                             *
+     *                                                                         *
+     *  @param str: string Which represent the string to work on               *
+     *                                                                         *
+     *                                                                         *
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
      */
-    extractor: class {
+    Extractor: class {
         constructor(str) {
             this.str = str;
         }
@@ -162,7 +232,7 @@ const JFV = {
          *
          * @param param: string which is the param to be replaced
          * @param value: string which is the value to replace the param
-         * @return extractor object
+         * @return JFV.Extractor object
          */
         setValue (param, value) {
             // Check if the param exists first
@@ -186,6 +256,18 @@ const JFV = {
         }
 
         /**
+         * Reset the str value from a new one
+         *
+         * @param newString
+         * @return JFV.Extractor object
+         */
+        reset(newString) {
+            this.str = newString;
+
+            return this;
+        }
+
+        /**
          * Check whether there is no left variable into the error string
          * it means all the variable have been parsed
          *
@@ -201,20 +283,36 @@ const JFV = {
      * This class handle the whole error messages
      *
      */
-    errorMessage: class {
+    ErrorMessage: class {
         // The json which is stored the error function
         static errorJSON = {
-            'fr-FR': {
-                'number': {
-                    'min': "S'il vous plait au moins ${minLength}",
-                    'other': 'Veillez entrer un nombre',
-                }
-            },
             'en-EN': {
-                'number': {
-                    'min': "Please enter at least ${minLength}",
-                    'other': 'Please enter a number',
-                }
+                "email": "Please enter a valid email address",
+                "number": {
+                    "equal": "Please enter exactly the number ${equalLength}",
+                    "min": "please enter a number greater than or equal than ${minLength}",
+                    "max": "please enter a number lower than or equal than ${minLength}",
+                    "number": "Please enter a number",
+                    "range": "Please enter a number between ${minLength} and ${maxLength}",
+                },
+                "password": {
+                    "confirmation": "Passwords must be the same"
+                },
+                "required": "This field is required",
+            },
+            "fr-FR": {
+                "email": "S'il vous plaît, veillez saisir une adresse email valide",
+                "number": {
+                    "equal": "Veuillez saisir exactement le nombre ${equalLength}",
+                    "min": "veuillez saisir un nombre supérieur ou égale à ${minLength}",
+                    "max": "veuillez saisir un nombre inférieur ou égale à ${minLength}",
+                    "number": "Veillez saisir un nombre",
+                    "range": "Veuillez saisir un nombre compris entre ${minLength} et ${maxLength}",
+                },
+                "password": {
+                    "confirmation": "Les mots de passe doivent être les mêmes"
+                },
+                "required": "Ce champ est requis",
             }
         };
 
@@ -224,7 +322,7 @@ const JFV = {
             // Get the language of the browser
             this.currentLanguage = navigator.language || navigator.userLanguage;
 
-            let LanguageError = "Unknow language";
+            let LanguageError = "Unknown language";
             try {
                 // Test if the language is handle or not
                 if(!Object.keys(this.constructor.errorJSON).includes(this.currentLanguage)) {
@@ -240,10 +338,10 @@ const JFV = {
         /**
          * Get a value of a key
          *
-         * @param _key {string} E.g: 'number', 'number.min', etc.
+         * @param key {string} E.g: 'number', 'number.min', etc.
          */
-        getValue(_key) {
-            let currentKey = _key, // Copy the key parameter
+        getValueOfKey(key) {
+            let currentKey = key, // Copy the key parameter
                 currentLanguageDictionary = this.constructor.errorJSON[this.currentLanguage], // Get the current language dictionary
                 response = undefined; // Set the response undefined to handle all cases
 
@@ -285,9 +383,41 @@ const JFV = {
         }
 
 
+        /**
+         * Define the language in cas where the user does not wants to use the default language
+         *
+         * @param language
+         * @returns {JFV.ErrorMessage}
+         */
+        setLanguage(language) {
+            let LanguageError = "Unknown language";
+
+            try {
+                // Test if the language is handle or not
+                if(Object.keys(this.constructor.errorJSON).includes(language)) {
+                    this.currentLanguage = language;
+                }
+                else throw LanguageError;
+            }
+            catch (e) {
+                throw e;
+            }
+
+            return this;
+        }
+
 
     }
 };
+
+
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+
+
 
 /**
  * This function creates the chainable $.jfv function
@@ -318,6 +448,8 @@ const JFV = {
 });*/
 
 
+let ERROR_MESSAGE = new JFV.ErrorMessage();
+
 
 /* ************** Validator Functions ************** */
 
@@ -334,7 +466,6 @@ const JFV = {
  * @returns {[boolean,string]}
  */
 function emptyChecker(element) {
-    console.log("element.value.length = ",element.value.length);
     if (element.value.length > 510) return [false, `Please enter at most 510 character(s)`];
     else return [true, ""];
 }
@@ -348,7 +479,7 @@ function emailChecker(element) {
     let regex = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i;
 
     return regex.test(element.value) === true ? [true, ""] :
-        [false, "Please enter a valid email address"];
+        [false, ERROR_MESSAGE.getValueOfKey('email')];
 }
 
 /**
@@ -361,51 +492,111 @@ function phoneChecker(element) {
     let regex = /^(2|6)[0-9]{8}$/ig;
 
     //Check the length of the number
-    if($(element).jfv("optional") != undefined && element.value === "") return [true, ""];
+    if($(element).jfv("optional") !== undefined && element.value === "") return [true, ""];
     else if(number_length < 9 || number_length > 9) return [false, "Le numéro doit avoir exactement 9 chiffres"];
     else if( !regex.test(element.value) ) return [false, "Veuillez entrer un numéro au format camerounais"];
     else return [true, ''];
 }
 
 /**
+ * This one handles the checking of number
+ *
  * @param element
  * @returns {[boolean,string]}
  */
 function numberChecker(element) {
-    let rangeResult = [true, ""];
-    let integerResult = /^[+-]?\d+(\.\d+)?$/.test(element.value) ? [true, ""] : [false, "Please enter a number"];
+    // Get the result of checking whether the value is a number of not
+    let numberResult = /^[+-]?\d+(\.\d+)?$/.test(element.value) ? [true, ""] : [false, ERROR_MESSAGE.getValueOfKey('number.number')];
 
-    if($(element).jfv("min") || $(element).jfv("max")) {
-        let length = Number(element.value);
-        let minLength = Number($(element).jfv("min")) ? Number($(element).jfv("min")) : 2;
-        let maxLength = Number($(element).jfv("max")) ? Number($(element).jfv("max")) : 255;
+    let rangeResult = [true, ""], // Initialize the rangeResult variable
+        minLength = Number($(element).jfv("min")), // Get the minimum value set
+        maxLength = Number($(element).jfv("max")); // Get the maximum value set
 
-        // rangeResult = (length >= minLength && length <= maxLength) ? [true, ""] : [false, `Veuillez entrer un nombre compris entre ${minLength} et ${maxLength}`];
-        rangeResult = (length >= minLength && length <= maxLength) ? [true, ""] : [false, `Please enter a number between ${minLength} and ${maxLength}`];
+    // Get the parsed value of element in Number
+    let length = Number(element.value);
+
+    // Create the errorMessage variable to handle error message
+    let errorMessage = new JFV.Extractor('');
+
+    // Test if the
+    if(minLength || maxLength) {
+
+        if(minLength && maxLength)
+            rangeResult = (length >= minLength && length <= maxLength)
+                ? [true, ""]
+                : [
+                    false,
+                    errorMessage
+                        .reset(ERROR_MESSAGE.getValueOfKey('number.range'))
+                        .setValue('minLength', minLength)
+                        .setValue('maxLength', maxLength)
+                        .getValue
+                  ];
+
+        else if(minLength)
+            rangeResult = (length >= minLength)
+                ? [true, ""]
+                : [
+                    false,
+                    errorMessage
+                        .reset(ERROR_MESSAGE.getValueOfKey('number.min'))
+                        .setValue('minLength', minLength)
+                        .getValue
+                  ];
+
+        else
+            rangeResult = (length <= maxLength)
+                ? [true, ""]
+                : [
+                    false,
+                    errorMessage
+                        .reset(ERROR_MESSAGE.getValueOfKey('number.max'))
+                        .setValue('maxLength', maxLength)
+                        .getValue
+                  ];
+
     }
-    else if ($(element).jfv("equal")) {
-        let length = Number(element.value);
-        let equalLength = Number($(element).jfv("equal")) ? Number($(element).jfv("equal")) : 10;
 
-        rangeResult = (length === equalLength) ? [true, ""] : [false, `Please enter exactly the number ${equalLength}`];
+    else {
+        // Get the number that the value should be equal
+        let equalLength = $(element).jfv("equal");
+
+        if (equalLength) {
+            rangeResult = (length <= maxLength)
+                ? [true, ""]
+                : [
+                    false,
+                    errorMessage
+                        .reset(ERROR_MESSAGE.getValueOfKey('number.equal'))
+                        .setValue('equalLength', equalLength)
+                        .getValue
+                  ];
+        }
     }
 
-    if(!integerResult[0] && rangeResult[0])  return integerResult;
-    else if(integerResult[0] && !rangeResult[0])  return rangeResult;
-    else if(!integerResult[0] && !rangeResult[0])  return rangeResult;
+    // Return the error if the test was false
+    // Note: We preform this check here because we want to show only one error message
+    // no matters the different type of message that it can show
+    if(!numberResult[0] && rangeResult[0])  return numberResult;
+    else if(numberResult[0] && !rangeResult[0])  return rangeResult;
+    else if(!numberResult[0] && !rangeResult[0])  return rangeResult;
     else return [true, ""];
 }
 
 /**
+ * This one handles required field
+ *
  * @param element
  * @returns {[boolean,string]}
  */
 function requiredChecker(element) {
-    if (element.value.length <= 0) return [false, 'This field is required'];
+    if (element.value.length <= 0) return [false, ERROR_MESSAGE.getValueOfKey('required')];
     return [true, ""];
 }
 
 /**
+ *
+ * TODO: DELETE THIS FUNCTION
  * @param element
  * @returns {[boolean,string]}
  */
@@ -420,6 +611,8 @@ function minMaxChecker(element) {
 }
 
 /**
+ * TODO: DELETE THIS FUNCTION
+ *
  * @param element
  * @returns {[boolean,string]}
  */
@@ -432,22 +625,23 @@ function equalChecker(element) {
 
 
 /**
+ * This one handles the confirmation of a password
+ *
+ * It means that it checks if a password field and its confirmation one are equals
+ *
  * @param element
  * @returns {[boolean,string]}
  */
 function passwordConfirmationChecker(element){
     let password = document.getElementById($(element).jfv("ref") ? $(element).jfv("ref") : 'password');
 
-    if(element.value !== password.value) return [false, "Password must be the same"];
+    if(element.value !== password.value) return [false, ERROR_MESSAGE.getValueOfKey('password.confirmation')];
     else return [true, ""];
 }
 
-const validationCLass = {
-    input: ['jfv-input-valid', 'jfv-input-invalid', 'jfv-input-information'],
-    label: ['jfv-label-valid', 'jfv-label-invalid', 'jfv-label-information']
-};
-
 /**
+ * This function manages the coloration of valid indicator
+ *
  * @param element
  */
 function setValidIndicator(element){
@@ -457,7 +651,11 @@ function setValidIndicator(element){
 
     // check whether the input's label will be modified
     if($(element).jfv("label")) {
-        let label = document.getElementById($(element).jfv("label"));
+
+        // Get the LABEL Element of the element
+        let label = document.querySelector("label[for="+ $(element).jfv("label") +"]");
+        if(!label) label = document.getElementById($(element).jfv("label"));
+
         try
         {
             label.classList.remove(validationCLass.label[1]);
@@ -468,6 +666,8 @@ function setValidIndicator(element){
 }
 
 /**
+ * This function manages the coloration of invalid indicator
+ *
  * @param element
  * @param errorMessage
  * @param isPasswordInput
@@ -489,8 +689,10 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
     if($(element).jfv("label")) {
         try
         {
+            // Get the LABEL Element of the element
             let label = document.querySelector("label[for="+ $(element).jfv("label") +"]");
             if(!label) label = document.getElementById($(element).jfv("label"));
+
             // Set red or blue color on the input label if it exist
             if(isOnSubmit) {
                 label.classList.remove(validationCLass.label[2]);
@@ -535,6 +737,8 @@ function setInvalidErrorMessage(element, errorMessage, isOnSubmit, isPasswordInp
 }
 
 /**
+ * Insert a node after another
+ *
  * @param el
  * @param referenceNode
  * @param isPasswordInput
@@ -668,7 +872,7 @@ function validator(form, isOnSubmit = false) {
 }
 
 /**
- * Main function of the module formValidator
+ * Main function of the library JFV
  */
 function runValidator() {
     let forms = $(".jfv-form");
