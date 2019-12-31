@@ -103,6 +103,7 @@ let errorJSON = {
 
 const MARQUEE_BEGIN = "${";
 const MARQUEE_END = "}";
+
 const JFV = {
     /**
      * This class handle the usage of an error like get the variable into it and so on
@@ -239,28 +240,50 @@ const JFV = {
         /**
          * Get a value of a key
          *
-         * @param key {string} E.g: 'number', 'parent.number.min'
+         * @param _key {string} E.g: 'number', 'number.min', etc.
          */
-        getKey(key) {
-            // Test is the string is a nested one i.e something like parent.sub.key
-            if(/\./.test(key)) {
-                // Divide the key in two
-                let exp = key.split(/\.(.+)/);
+        getValue(_key) {
+            let currentKey = _key, // Copy the key parameter
+                currentLanguageDictionary = this.constructor.errorJSON[this.currentLanguage], // Get the current language dictionary
+                response = undefined; // Set the response undefined to handle all cases
 
-                // Apply the getKey function to the first key
-                let res = this.getKey(exp[0]);
+            // The regex bellow match string like something or something.something n times
+            let match = /^((\w+)\.)+\w+$|^(\w+)$/;
 
-                // Test if the result is not undefined and then is not a string
-                if(res !== undefined && (typeof res) !== 'string') {
+            // Check if the key is correct
+            if(match.test(currentKey)) {
 
-                    // Get the value of the property where the key is the result
-                    // of the applied of the getKey function to the rest of the key
-                    return res[exp[1]];
+                // Since the key is correct then, update the response to the current language dictionary
+                response = currentLanguageDictionary;
+
+                while(currentKey !== '') {
+                    // Get the index of the first dot
+                    let indexOfFirstSeparator = currentKey.search(/\./);
+
+                    // Check if the index is a correct one
+                    if(indexOfFirstSeparator !== -1) {
+
+                        let firstKey = currentKey.slice(0, indexOfFirstSeparator), // Get the first key onto the string
+                            restOfKey = currentKey.slice(indexOfFirstSeparator + 1); // Get the rest of the key
+
+                        response = currentLanguageDictionary[firstKey]; // Get the content of the first key according to the current language dictionary
+
+                        currentLanguageDictionary = response; // Update the current language dictionary so that the next lap will be according to it
+
+                        currentKey = restOfKey; // update the current key
+                    }
+
+                    // It means the string does not anymore contains a dot
+                    else {
+                        response = response[currentKey]; // Get the value of the key
+                        currentKey = ''; // Set the key to stop the loop
+                    }
                 }
             }
-            // It means that it is a direct key so just find and returns the result
-            else return this.constructor.errorJSON[this.currentLanguage][key];
+
+            return response;
         }
+
 
 
     }
