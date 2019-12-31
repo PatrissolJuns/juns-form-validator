@@ -875,8 +875,8 @@ function validator(form, isOnSubmit = false) {
  * Main function of the library JFV
  */
 function runValidator() {
-    let forms = $(".jfv-form");
     let isAjax = false;
+    /*let forms = $(".jfv-form");
 
     // fetching the different forms
     for (let form in Object.keys(forms).filter( a => /\d/.test(a) === true)) {
@@ -889,7 +889,31 @@ function runValidator() {
             }
             else event.stopImmediatePropagation();
         });
-    }
+    }*/
+
+    $(".jfv-form").each(function(index) {
+        let form = $(this); // The form of the index lap
+
+        // Start the validation of the form form
+        // And of course it will bind the event watcher to each input
+        validator(form, false);
+
+        // Check whether the form is going to be send through ajax or not
+        if($(form).jfv("ajax") === "true") isAjax = true;
+
+        form.on("submit", function(event) {
+            event.preventDefault();
+
+            // Check the form one last time before sending it or not
+            // This is to be sured that all the inputs is good
+            if(validator(form, true)) {
+                // In case where the form is not going to be send through ajax, simply send the form
+                if(!isAjax) event.currentTarget.submit();
+            }
+            // It means the form is not correct so cancel the the request
+            else event.stopImmediatePropagation();
+        });
+    });
 }
 
 /**
