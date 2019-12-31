@@ -287,11 +287,16 @@ const JFV = {
         // The json which is stored the error function
         static errorJSON = {
             'en-EN': {
+                "character": {
+                    "equal": "Please enter exactly ${equalLength} character(s)",
+                    "max": "Please enter at most ${maxLength} character(s)",
+                    "min": "Please enter at least ${minLength} character(s)",
+                },
                 "email": "Please enter a valid email address",
                 "number": {
                     "equal": "Please enter exactly the number ${equalLength}",
-                    "min": "please enter a number greater than or equal than ${minLength}",
                     "max": "please enter a number lower than or equal than ${minLength}",
+                    "min": "please enter a number greater than or equal than ${minLength}",
                     "number": "Please enter a number",
                     "range": "Please enter a number between ${minLength} and ${maxLength}",
                 },
@@ -301,11 +306,16 @@ const JFV = {
                 "required": "This field is required",
             },
             "fr-FR": {
-                "email": "S'il vous plaît, veillez saisir une adresse email valide",
+                "character": {
+                    "equal": "Veuillez entrer exactement ${equalLength} caractère(s)",
+                    "max": "Veuillez saisir au plus ${maxLength} caractère(s)",
+                    "min": "Veuillez saisir au moins ${minLength} caractère(s)",
+                },
+                "email": "Veillez saisir une adresse email valide",
                 "number": {
                     "equal": "Veuillez saisir exactement le nombre ${equalLength}",
-                    "min": "veuillez saisir un nombre supérieur ou égale à ${minLength}",
                     "max": "veuillez saisir un nombre inférieur ou égale à ${minLength}",
+                    "min": "veuillez saisir un nombre supérieur ou égale à ${minLength}",
                     "number": "Veillez saisir un nombre",
                     "range": "Veuillez saisir un nombre compris entre ${minLength} et ${maxLength}",
                 },
@@ -466,7 +476,7 @@ let ERROR_MESSAGE = new JFV.ErrorMessage();
  * @returns {[boolean,string]}
  */
 function emptyChecker(element) {
-    if (element.value.length > 510) return [false, `Please enter at most 510 character(s)`];
+    if (element.val().length > 510) return [false, `Please enter at most 510 character(s)`];
     else return [true, ""];
 }
 
@@ -478,7 +488,7 @@ function emailChecker(element) {
     // let match = value.match(/^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i);
     let regex = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i;
 
-    return regex.test(element.value) === true ? [true, ""] :
+    return regex.test(element.val()) === true ? [true, ""] :
         [false, ERROR_MESSAGE.getValueOfKey('email')];
 }
 
@@ -506,14 +516,14 @@ function phoneChecker(element) {
  */
 function numberChecker(element) {
     // Get the result of checking whether the value is a number of not
-    let numberResult = /^[+-]?\d+(\.\d+)?$/.test(element.value) ? [true, ""] : [false, ERROR_MESSAGE.getValueOfKey('number.number')];
+    let numberResult = /^[+-]?\d+(\.\d+)?$/.test(element.val()) ? [true, ""] : [false, ERROR_MESSAGE.getValueOfKey('number.number')];
 
     let rangeResult = [true, ""], // Initialize the rangeResult variable
-        minLength = Number($(element).jfv("min")), // Get the minimum value set
-        maxLength = Number($(element).jfv("max")); // Get the maximum value set
+        minLength = Number(element.jfv("min")), // Get the minimum value set
+        maxLength = Number(element.jfv("max")); // Get the maximum value set
 
     // Get the parsed value of element in Number
-    let length = Number(element.value);
+    let length = Number(element.val());
 
     // Create the errorMessage variable to handle error message
     let errorMessage = new JFV.Extractor('');
@@ -559,7 +569,7 @@ function numberChecker(element) {
 
     else {
         // Get the number that the value should be equal
-        let equalLength = $(element).jfv("equal");
+        let equalLength = element.jfv("equal");
 
         if (equalLength) {
             rangeResult = (length <= maxLength)
@@ -590,7 +600,7 @@ function numberChecker(element) {
  * @returns {[boolean,string]}
  */
 function requiredChecker(element) {
-    if (element.value.length <= 0) return [false, ERROR_MESSAGE.getValueOfKey('required')];
+    if (element.val().length <= 0) return [false, ERROR_MESSAGE.getValueOfKey('required')];
     return [true, ""];
 }
 
@@ -600,13 +610,26 @@ function requiredChecker(element) {
  * @param element
  * @returns {[boolean,string]}
  */
-function minMaxChecker(element) {
-    let length = Number(element.value.length);
-    let minLength = Number($(element).jfv("min")) ? Number($(element).jfv("min")) : 2;
-    let maxLength = Number($(element).jfv("max")) ? Number($(element).jfv("max")) : 255;
+function minMaxCheckerCharacter(element) {
+    let length = Number(element.val().length);
+    let minLength = Number(element.jfv("min"));
+    let maxLength = Number(element.jfv("max"));
+    let errorMessage = new JFV.Extractor('');
 
-    if (length < minLength) return [false, `Please enter at least ${minLength} character(s)`];
-    else if (length > maxLength) return [false, `Please enter at most ${minLength} character(s)`];
+    if (length < minLength) return [
+        false,
+        errorMessage
+            .reset(ERROR_MESSAGE.getValueOfKey('character.min'))
+            .setValue('minLength', minLength)
+            .getValue
+    ];
+    else if (length > maxLength) return [
+        false,
+        errorMessage
+            .reset(ERROR_MESSAGE.getValueOfKey('character.max'))
+            .setValue('maxLength', maxLength)
+            .getValue
+    ];
     else return [true, ""];
 }
 
@@ -617,10 +640,19 @@ function minMaxChecker(element) {
  * @returns {[boolean,string]}
  */
 function equalChecker(element) {
-    let length = Number(element.value.length);
-    let equal = Number($(element).jfv("equal")) ? Number($(element).jfv("equal")) : 2;
+    let length = Number(element.val().length);
+    let equalLength = Number(element.jfv("equal")) ? Number(element.jfv("equal")) : 2;
 
-    return length === equal ? [true, ""] : [false, `Please enter excatly ${minLength} character(s)`];
+    let errorMessage = new JFV.Extractor(ERROR_MESSAGE.getValueOfKey('character.max'));
+
+    return length === equalLength
+        ? [true, ""]
+        : [
+            false,
+            errorMessage
+                .setValue('equalLength', equalLength)
+                .getValue
+        ];
 }
 
 
@@ -633,9 +665,9 @@ function equalChecker(element) {
  * @returns {[boolean,string]}
  */
 function passwordConfirmationChecker(element){
-    let password = document.getElementById($(element).jfv("ref") ? $(element).jfv("ref") : 'password');
+    let password = $('#' + ( element.jfv("ref") ? element.jfv("ref") : 'password')) ;
 
-    if(element.value !== password.value) return [false, ERROR_MESSAGE.getValueOfKey('password.confirmation')];
+    if(element.val() !== password.val()) return [false, ERROR_MESSAGE.getValueOfKey('password.confirmation')];
     else return [true, ""];
 }
 
@@ -645,22 +677,28 @@ function passwordConfirmationChecker(element){
  * @param element
  */
 function setValidIndicator(element){
-    element.classList.remove(validationCLass.input[1]);
+    /*element.classList.remove(validationCLass.input[1]);
     element.classList.remove(validationCLass.input[2]);
-    element.classList.add(validationCLass.input[0]);
+    element.classList.add(validationCLass.input[0]);*/
+
+    element.removeClass(validationCLass.input[1], validationCLass.input[2]);
+    element.addClass(validationCLass.input[0]);
 
     // check whether the input's label will be modified
-    if($(element).jfv("label")) {
+    if(element.jfv("label")) {
 
         // Get the LABEL Element of the element
-        let label = document.querySelector("label[for="+ $(element).jfv("label") +"]");
-        if(!label) label = document.getElementById($(element).jfv("label"));
+        let label = $("label[for="+ element.jfv("label") +"]");
+        if(!label) label = $('#' + element.jfv("label"));
 
         try
         {
-            label.classList.remove(validationCLass.label[1]);
+            /*label.classList.remove(validationCLass.label[1]);
             label.classList.remove(validationCLass.label[2]);
-            label.classList.add(validationCLass.label[0]);
+            label.classList.add(validationCLass.label[0]);*/
+
+            label.removeClass(validationCLass.label[1], validationCLass.label[2]);
+            label.addClass(validationCLass.label[0]);
         } catch (e) {}
     }
 }
@@ -676,13 +714,19 @@ function setValidIndicator(element){
 function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit = false){
     // Color input in red or blue
     if(isOnSubmit) {
-        element.classList.remove(validationCLass.input[2]);
+        /*element.classList.remove(validationCLass.input[2]);
         element.classList.remove(validationCLass.input[0]);
-        element.classList.add(validationCLass.input[1]);
+        element.classList.add(validationCLass.input[1]);*/
+
+        element.removeClass(validationCLass.input[0], validationCLass.input[2]);
+        element.addClass(validationCLass.input[1]);
     } else {
-        element.classList.remove(validationCLass.input[1]);
+        /*element.classList.remove(validationCLass.input[1]);
         element.classList.remove(validationCLass.input[0]);
-        element.classList.add(validationCLass.input[2]);
+        element.classList.add(validationCLass.input[2]);*/
+
+        element.removeClass(validationCLass.input[0], validationCLass.input[1]);
+        element.addClass(validationCLass.input[2]);
     }
 
     // check whether the input's label will be modified
@@ -690,27 +734,33 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
         try
         {
             // Get the LABEL Element of the element
-            let label = document.querySelector("label[for="+ $(element).jfv("label") +"]");
-            if(!label) label = document.getElementById($(element).jfv("label"));
+            let label = $("label[for="+ $(element).jfv("label") +"]");
+            if(!label) label = $('#' + element.jfv("label"));
 
             // Set red or blue color on the input label if it exist
             if(isOnSubmit) {
-                label.classList.remove(validationCLass.label[2]);
+                /*label.classList.remove(validationCLass.label[2]);
                 label.classList.remove(validationCLass.label[0]);
-                label.classList.add(validationCLass.label[1]);
+                label.classList.add(validationCLass.label[1]);*/
+
+                label.removeClass(validationCLass.input[0], validationCLass.input[2]);
+                label.addClass(validationCLass.input[1]);
             } else {
-                label.classList.remove(validationCLass.label[1]);
+                /*label.classList.remove(validationCLass.label[1]);
                 label.classList.remove(validationCLass.label[0]);
-                label.classList.add(validationCLass.label[2]);
+                label.classList.add(validationCLass.label[2]);*/
+
+                label.removeClass(validationCLass.input[0], validationCLass.input[1]);
+                label.addClass(validationCLass.input[2]);
             }
         } catch (e) {}
     }
 
     // Display error message
-    setInvalidErrorMessage(element, errorMessage, isOnSubmit, isPasswordInput);
+    setInvalidErrorMessage(element[0], errorMessage, isOnSubmit, isPasswordInput);
 
     // Focus on invalid element
-    element.scrollIntoView({block: "center", behavior: "smooth"})
+    element[0].scrollIntoView({block: "center", behavior: "smooth"})
 }
 
 /**
@@ -763,6 +813,35 @@ function removeErrorMessage() {
     }
 }
 
+
+/**
+ * Execute a function only once
+ *
+ * @param fn
+ * @param context
+ * @returns {function(): *}
+ */
+function once(fn, context) {
+    // Variable to store the result of the first and only execution of the fn function
+    let result;
+
+    return function() {
+        // Check if the function has been executed because if it is the case, the fn would be null
+        if(fn) {
+            result = fn.apply(context || this, arguments); // Execute the fn function
+            fn = null; // Set the fn to null in order to no more execute it
+        }
+
+        // Return the result of the fn function
+        return result;
+    };
+}
+
+let blurEventOnInput = once(function (element) {
+    element.on("blur", function() { removeErrorMessage(); });
+});
+
+
 /* ************** End of Validator Functions ************** */
 
 /**
@@ -775,7 +854,7 @@ function secondTypeValidator(element) {
     //if(secondType === 'phone') return phoneChecker(element);
     if(secondType === "required") return requiredChecker(element);
     else if(secondType === "empty") return emptyChecker(element);
-    else if(secondType === "range") return minMaxChecker(element);
+    else if(secondType === "range") return minMaxCheckerCharacter(element);
     else if(secondType === "equal") return equalChecker(element);
     else if(secondType === "number") return numberChecker(element);
     else return [true, ""];
@@ -789,15 +868,18 @@ function secondTypeValidator(element) {
  */
 function inputValidator(element, isOnSubmit = false) {
     let object = [true, ""];
-    let type = element.type;
+    let type = element.prop('type');
     let isPasswordInput = false;
 
     // remove previous message to avoid case like the input now is valid
     removeErrorMessage();
-    element.addEventListener("blur", function() { removeErrorMessage(); });
+
+    // Call the blur effect in order to remove the error message on blur
+    // Note: This this will be executed only once :)
+    blurEventOnInput(element);
 
     // Call of the different type of validation
-    if(element.tagName === 'INPUT')
+    /*if(element.tagName === 'INPUT')
     {
         if($(element).jfv("optional") && element.value === "") object = [true, ""];
         else if(type === 'email') object = emailChecker(element);
@@ -808,7 +890,7 @@ function inputValidator(element, isOnSubmit = false) {
         {
             isPasswordInput = true;
             if(element.name === 'password_confirmation') object = passwordConfirmationChecker(element);
-            else object = minMaxChecker(element);
+            else object = minMaxCheckerCharacter(element);
         }
 
         else if(type === 'text')
@@ -829,19 +911,82 @@ function inputValidator(element, isOnSubmit = false) {
         ? setValidIndicator(element)
         : setInvalidIndicator(element, object[1], isPasswordInput, isOnSubmit);
 
+    return object[0];*/
+
+
+
+    switch (element.prop('tagName')) {
+        case 'INPUT':
+            if(element.jfv("optional") && element.val() === "") object = [true, ""];
+            else if(type === 'email') object = emailChecker(element);
+            else if(type === 'number') object = numberChecker(element);
+
+            // check for password input according to our password input behavior
+            else if(element.jfv("type") && element.jfv("type") === 'password')
+            {
+                isPasswordInput = true;
+
+                // Check if the input is the confirmation of password
+                if(element.jfv("ref")) object = passwordConfirmationChecker(element);
+
+                // Else apply the minMaxChecker in order to specify the length of the password
+                else object = minMaxCheckerCharacter(element);
+            }
+
+            else if(type === 'text')
+            {
+                if(element.jfv("type"))
+                    object = secondTypeValidator(element);
+            }
+            break;
+
+        case 'TEXTAREA':
+            if(element.jfv("type"))
+                object = secondTypeValidator(element);
+            break;
+
+        case 'SELECT':
+            object = [true, ""];
+            break;
+
+        default:
+            object = [true, ""];
+            break;
+    }
+
+    // Color the element and/or its label according to the value of object[0]
+    object[0] === true
+        ? setValidIndicator(element)
+        : setInvalidIndicator(element, object[1], isPasswordInput, isOnSubmit);
+
     return object[0];
+
 }
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+
+
 
 /**
- * This function is used to validate a form i.e each it will validate each items
- * @param form The form itself
- * @param isOnSubmit This is the boolean to hire the global validation
- * @returns {boolean}
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *                                                                         *
+ * Validate a form i.e it will validate each items                         *
+ *                                                                         *
+ * @param form The form itself                                             *
+ *                                                                         *
+ * @param isOnSubmit This is the boolean to hire the global validation     *
+ *                                                                         *
+ * @returns {boolean}                                                      *
+ *                                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 function validator(form, isOnSubmit = false) {
     let isValidArray = [];
 
-    if(form !== undefined && form.tagName === 'FORM') {
+    /*if(form !== undefined && form.tagName === 'FORM') {
         let inputList = form.querySelectorAll('input, textarea');
 
         for (let input in Object.keys(inputList).filter( a => /\d/.test(a) === true)) {
@@ -868,11 +1013,58 @@ function validator(form, isOnSubmit = false) {
         }
 
         return isValidArray.every(a => a === true);
+    }*/
+
+    if(form.length > 0 && form.prop('tagName') === 'FORM') {
+        let items = form.find('input, textarea');
+
+        items.each(function (index) {
+            let element = $(this);
+
+            if(element.jfv('validate') !== 'false' && !element.jfv('validate')) {
+                if(element.prop('type')
+                    && element.prop('type') !== "hidden"
+                    && element.prop('type') !== "file") {
+
+                    // Bind focus event to handle validation
+                    element.on("focus", function() {
+                        inputValidator(element);
+                    });
+
+                    // Add keyup event to increase the management of validation
+                    element.on("keyup", function() {
+                        inputValidator(element);
+                    });
+
+                    if(isOnSubmit) inputValidator(element, true) ?
+                        isValidArray.push(true) :
+                        isValidArray.push(false);
+                }
+            }
+        })
+
+        return isValidArray.every(a => a === true);
     }
 }
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+
+
+
 
 /**
- * Main function of the library JFV
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *                                                                         *
+ * Main function of the library JFV                                        *
+ *                                                                         *
+ * It initialize the JFV on each form of the page and also bind event      *
+ *                                                                         *
+ * watcher on them                                                         *
+ *                                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 function runValidator() {
     let isAjax = false;
@@ -905,7 +1097,7 @@ function runValidator() {
             event.preventDefault();
 
             // Check the form one last time before sending it or not
-            // This is to be sured that all the inputs is good
+            // This is to be sur that all the inputs is good
             if(validator(form, true)) {
                 // In case where the form is not going to be send through ajax, simply send the form
                 if(!isAjax) event.currentTarget.submit();
@@ -915,10 +1107,33 @@ function runValidator() {
         });
     });
 }
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+
+
 
 /**
  * Run the validator function
  */
 runValidator();
 
-/*================== END OF JFV FORM VALIDATOR ====================*/
+
+
+
+
+
+
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ *
+ *
+ *
+ *
+ ** * * * * * * * * * * * * E N D  O F  J F V * * * * * * * * * * * * * * **
+ *
+ *
+ *
+ *
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
