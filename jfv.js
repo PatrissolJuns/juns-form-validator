@@ -18,18 +18,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 
-
-
-/*
-let errorJSON = {
-    'fr': {
-        'number': {
-            'min': "S'il vous plait au moins ${minLength}",
-        }
-    }
-};
-*/
-
 /**
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                         *
@@ -59,26 +47,27 @@ const validationCLass = {
     label: ['jfv-label-valid', 'jfv-label-invalid', 'jfv-label-information']
 };
 
-
-/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
+ *
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
 
 
 /**
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                         *
- * Return the list of all attributes of an element          *
+ * This function returns the list of all attributes of an element          *
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 (function(old) {
     $.fn.attr = function() {
         if(arguments.length === 0) {
-            if(this.length === 0) {
-                return null;
-            }
+            if(this.length === 0) return null;
 
-            var obj = {};
+            let obj = {};
             $.each(this[0].attributes, function() {
                 if(this.specified) {
                     obj[this.name] = this.value;
@@ -96,7 +85,6 @@ const validationCLass = {
  ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-
 
 
 
@@ -169,7 +157,7 @@ const validationCLass = {
  *                                                                         *
  * This is a JSON of Class. It is used to handle internationalisation,     *
  *                                                                         *
- * customization of error messages and many others.                        *
+ * customization of error messages and many others things.                 *
  *                                                                         *
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -353,8 +341,6 @@ const JFV = {
         };
 
         constructor() {
-            // console.log('errorJSON = ',this.constructor.errorJSON['fr-FR']['number']);
-
             // Get the language of the browser
             this.currentLanguage = navigator.language || navigator.userLanguage;
 
@@ -816,12 +802,16 @@ function once(fn, context) {
     };
 }
 
-let blurEventOnInput = once(function (element) {
+const blurEventOnInput = once(function (element) {
     element.on("blur", function() { removeErrorMessage(); });
 });
 
+/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
+ *
+ * * * E  N  D  *  O F  *  V A L I D A T O R  *  F U N C T I O N S  * * * **
+ *
+ ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
-/* ************** End of Validator Functions ************** */
 
 /**
  * @param element
@@ -858,41 +848,6 @@ function inputValidator(element, isOnSubmit = false) {
     blurEventOnInput(element);
 
     // Call of the different type of validation
-    /*if(element.tagName === 'INPUT')
-    {
-        if($(element).jfv("optional") && element.value === "") object = [true, ""];
-        else if(type === 'email') object = emailChecker(element);
-        else if(type === 'number') object = numberChecker(element);
-
-        // check for password input according to our password input behavior
-        else if($(element).jfv("type") && $(element).jfv("type") === 'password')
-        {
-            isPasswordInput = true;
-            if(element.name === 'password_confirmation') object = passwordConfirmationChecker(element);
-            else object = minMaxCheckerCharacter(element);
-        }
-
-        else if(type === 'text')
-        {
-            if($(element).jfv("type"))
-                object = secondTypeValidator(element);
-        }
-    }
-    else if(element.tagName === 'TEXTAREA')
-    {
-        if($(element).jfv("type"))
-            object = secondTypeValidator(element);
-    }
-    else if(element.tagName === 'SELECT') object = [true, ""];
-    else object = [true, ""];
-
-    object[0] === true
-        ? setValidIndicator(element)
-        : setInvalidIndicator(element, object[1], isPasswordInput, isOnSubmit);
-
-    return object[0];*/
-
-
     switch (element.prop('tagName')) {
         case 'INPUT':
             if(element.jfv("optional") && element.val() === "") object = [true, ""];
@@ -964,35 +919,6 @@ function inputValidator(element, isOnSubmit = false) {
 function validator(form, isOnSubmit = false) {
     let isValidArray = [];
 
-    /*if(form !== undefined && form.tagName === 'FORM') {
-        let inputList = form.querySelectorAll('input, textarea');
-
-        for (let input in Object.keys(inputList).filter( a => /\d/.test(a) === true)) {
-            let element = inputList[input];
-
-            if($(element).jfv() !== []){
-                if(($(element).jfv("validate") && $(element).jfv("validate") !== 'false')
-                    || !$(element).jfv("validate")) {
-                    if(element.type !== "hidden" && element.type !== "file")
-                    {
-                        element.addEventListener("focus", function() {
-                            inputValidator(element);
-                        });
-                        element.addEventListener("keyup", function() {
-                            inputValidator(element);
-                        });
-
-                        if(isOnSubmit) inputValidator(element, true) ?
-                            isValidArray.push(true) :
-                            isValidArray.push(false);
-                    }
-                }
-            }
-        }
-
-        return isValidArray.every(a => a === true);
-    }*/
-
     if(form.length > 0 && form.prop('tagName') === 'FORM') {
         let items = form.find('input, textarea');
 
@@ -1046,20 +972,6 @@ function validator(form, isOnSubmit = false) {
  */
 function runValidator() {
     let isAjax = false;
-    /*let forms = $(".jfv-form");
-
-    // fetching the different forms
-    for (let form in Object.keys(forms).filter( a => /\d/.test(a) === true)) {
-        validator(forms[form], false);
-        if($(forms[form]).jfv("ajax") && $(forms[form]).jfv("ajax") === "true") isAjax = true;
-        forms[form].addEventListener("submit", function(event) {
-            event.preventDefault();
-            if(validator(forms[form], true)) {
-                if(!isAjax) event.currentTarget.submit();
-            }
-            else event.stopImmediatePropagation();
-        });
-    }*/
 
     $(".jfv-form").each(function(index) {
         const form = $(this); // The form of the index lap
