@@ -220,7 +220,7 @@ Sometimes, you may need to have a field that is required it means the field must
 
 If you want to make a field to be optional it means that the value must not be present but if there is any value it would be checked according to want you have setting for.
 
-To make it work, you must set `jfv-optiona="true"`.
+To make it work, you must set `jfv-optional="true"`.
 
 
 ## Contributing
