@@ -4,13 +4,16 @@
  *                                                                         *
  * Welcome to the Juns Form Validator                                      *
  *                                                                         *
- * by PatrissolJuns                                                        *
+ * This is a little library to rapidly handle the validation of a form     *
+ *                                                                         *
+ * It provide many shortcut and attribute in order to let the developers   *
+ *                                                                         *
+ *  to focus on the essentials.                                            *
  *                                                                         *
  *                                                                         *
- * This is a mini library to rapidly handle the validation of a form       *
+ *  by PatrissolJuns                                                       *
  *                                                                         *
- * It provide many shortcut and attribute in order to function             *
- *                                                                         *
+ *  [GITHUB] https://github.com/PatrissolJuns/juns-form-validator          *
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
@@ -29,22 +32,28 @@ let errorJSON = {
 
 /**
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *  Constant's list                                                        *
  *                                                                         *
- *  Delimiters of a parameter of an error message                          *
+ *  Constant's list                                                        *
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 
+/**
+ * Define the beginning of string template
+ * @type {string}
+ */
 const MARQUEE_BEGIN = "${";
 
+/**
+ * Define the end of string template
+ * @type {string}
+ */
 const MARQUEE_END = "}";
 
-const DEFAULT_MIN_NUMBER = 2;
-
-const DEFAULT_MAX_NUMBER = 2;
-
-
+/**
+ * List all CSS classes used by the library
+ * @type {{input: [string, string, string], label: [string, string, string]}}
+ */
 const validationCLass = {
     input: ['jfv-input-valid', 'jfv-input-invalid', 'jfv-input-information'],
     label: ['jfv-label-valid', 'jfv-label-invalid', 'jfv-label-information']
@@ -55,11 +64,10 @@ const validationCLass = {
 
 
 
-
 /**
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                         *
- * This function returns the list of all attributes of an element          *
+ * Return the list of all attributes of an element          *
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
@@ -85,7 +93,7 @@ const validationCLass = {
 
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
- ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
@@ -97,7 +105,9 @@ const validationCLass = {
  *                                                                         *
  * This function with no argument returns the list of all jfv attributes   *
  *                                                                         *
- * of an element with one argument returns the value of the jfv element.   *
+ * of an element.                                                          *
+ *                                                                         *
+ * With one argument returns the value of the jfv element if exists.       *
  *                                                                         *
  *                                                                         *
  *  E.g: $('#my-input-text').jfv('min'); // return the value of the        *
@@ -111,9 +121,8 @@ const validationCLass = {
     $.fn.jfv = function() {
         
         if(this === undefined || this === null)
-        {
             return arguments.length === 0 ? [] : undefined;
-        }
+
         if(arguments.length === 0) {
             
             // First obtain an array which contains only a couple of jfv attribute and its value
@@ -150,7 +159,7 @@ const validationCLass = {
 
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
- ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
@@ -166,14 +175,12 @@ const validationCLass = {
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 const JFV = {
-
-
     /**
      * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
      *                                                                         *
      * This class handle the usage of an error like get the variable into it   *
      *                                                                         *
-     *  and so on.                                                             *
+     * and so on.                                                              *
      *                                                                         *
      *  @param str: string Which represent the string to work on               *
      *                                                                         *
@@ -186,7 +193,7 @@ const JFV = {
         }
 
         /**
-         * Returns the an array which content the list of variable into the string
+         * Returns an array which content the list of variable into the string
          *
          * @return Array|undefined
          */
@@ -194,7 +201,7 @@ const JFV = {
             let response = [], regex = /\${/, regex2 = /}/, BreakException = {};
 
             try {
-                // Test if the str contains and variable
+                // Test if the str contains any variable
                 if (regex.test(this.str)) {
                     // Then split the string by the marquee
                     this.str.split('${').slice(1).map(val => {
@@ -286,7 +293,26 @@ const JFV = {
     ErrorMessage: class {
         // The json which is stored the error function
         static errorJSON = {
-            'en-EN': {
+            "en-US": {
+                "character": {
+                    "equal": "Please enter exactly ${equalLength} character(s)",
+                    "max": "Please enter at most ${maxLength} character(s)",
+                    "min": "Please enter at least ${minLength} character(s)",
+                },
+                "email": "Please enter a valid email address",
+                "number": {
+                    "equal": "Please enter exactly the number ${equalLength}",
+                    "max": "please enter a number lower than or equal than ${minLength}",
+                    "min": "please enter a number greater than or equal than ${minLength}",
+                    "number": "Please enter a number",
+                    "range": "Please enter a number between ${minLength} and ${maxLength}",
+                },
+                "password": {
+                    "confirmation": "Passwords must be the same"
+                },
+                "required": "This field is required",
+            },
+            "en-EN": {
                 "character": {
                     "equal": "Please enter exactly ${equalLength} character(s)",
                     "max": "Please enter at most ${maxLength} character(s)",
@@ -332,11 +358,12 @@ const JFV = {
             // Get the language of the browser
             this.currentLanguage = navigator.language || navigator.userLanguage;
 
-            let LanguageError = "Unknown language";
+            const LanguageError = "Unknown language " + this.currentLanguage;
+
             try {
                 // Test if the language is handle or not
                 if(!Object.keys(this.constructor.errorJSON).includes(this.currentLanguage)) {
-                    throw LanguageError;
+                    throw new Error(LanguageError);
                 }
             }
             catch (e) {
@@ -356,7 +383,7 @@ const JFV = {
                 response = undefined; // Set the response undefined to handle all cases
 
             // The regex bellow match string like something or something.something n times
-            let match = /^((\w+)\.)+\w+$|^(\w+)$/;
+            const match = /^((\w+)\.)+\w+$|^(\w+)$/;
 
             // Check if the key is correct
             if(match.test(currentKey)) {
@@ -366,17 +393,26 @@ const JFV = {
 
                 while(currentKey !== '') {
                     // Get the index of the first dot
-                    let indexOfFirstSeparator = currentKey.search(/\./);
+                    const indexOfFirstSeparator = currentKey.search(/\./);
 
                     // Check if the index is a correct one
                     if(indexOfFirstSeparator !== -1) {
 
-                        let firstKey = currentKey.slice(0, indexOfFirstSeparator), // Get the first key onto the string
+                        const firstKey = currentKey.slice(0, indexOfFirstSeparator), // Get the first key onto the string
                             restOfKey = currentKey.slice(indexOfFirstSeparator + 1); // Get the rest of the key
 
-                        response = currentLanguageDictionary[firstKey]; // Get the content of the first key according to the current language dictionary
+                        // Try to get the current property
+                        try {
+                            // Get the content of the first key according to the current language dictionary
+                            response = currentLanguageDictionary[firstKey];
+                        }
+                        catch (e) {
+                            // Else return the previous property value
+                            return response;
+                        }
 
-                        currentLanguageDictionary = response; // Update the current language dictionary so that the next lap will be according to it
+                        // Update the current language dictionary so that the next lap will be according to it
+                        currentLanguageDictionary = response;
 
                         currentKey = restOfKey; // update the current key
                     }
@@ -400,14 +436,14 @@ const JFV = {
          * @returns {JFV.ErrorMessage}
          */
         setLanguage(language) {
-            let LanguageError = "Unknown language";
+            const LanguageError = "Unknown language " + language;
 
             try {
                 // Test if the language is handle or not
                 if(Object.keys(this.constructor.errorJSON).includes(language)) {
                     this.currentLanguage = language;
                 }
-                else throw LanguageError;
+                else throw new Error(LanguageError);
             }
             catch (e) {
                 throw e;
@@ -423,40 +459,9 @@ const JFV = {
 
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
- ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-
-
-
-/**
- * This function creates the chainable $.jfv function
- *
- *
- */
-/*$.extend({
-    jfv: function(arguments) {
-        console.log('dqsdqsdqs = ',arguments);
-
-        let methods = {
-            extract : function() {
-                console.log('inside the extract methods');
-
-                let subMethods = {
-                    getParams: function() {
-                        console.log('inside the params');
-                        return this;
-                    }
-                }
-
-                // alert("method0");
-                return subMethods;
-            }
-        };
-        return methods;
-    }
-});*/
-
 
 let ERROR_MESSAGE = new JFV.ErrorMessage();
 
@@ -584,7 +589,7 @@ function numberChecker(element) {
     }
 
     // Return the error if the test was false
-    // Note: We preform this check here because we want to show only one error message
+    // Note: We perform this check here because we want to show only one error message
     // no matters the different type of message that it can show
     if(!numberResult[0] && rangeResult[0])  return numberResult;
     else if(numberResult[0] && !rangeResult[0])  return rangeResult;
@@ -599,8 +604,11 @@ function numberChecker(element) {
  * @returns {[boolean,string]}
  */
 function requiredChecker(element) {
-    if (element.val().length <= 0) return [false, ERROR_MESSAGE.getValueOfKey('required')];
-    return [true, ""];
+    /*if (element.val().length <= 0) return [false, ERROR_MESSAGE.getValueOfKey('required')];
+    return [true, ""];*/
+    return element.val().length <= 0
+            ? [false, ERROR_MESSAGE.getValueOfKey('required')]
+            : [true, ""];
 }
 
 /**
@@ -885,7 +893,6 @@ function inputValidator(element, isOnSubmit = false) {
     return object[0];*/
 
 
-
     switch (element.prop('tagName')) {
         case 'INPUT':
             if(element.jfv("optional") && element.val() === "") object = [true, ""];
@@ -935,7 +942,7 @@ function inputValidator(element, isOnSubmit = false) {
 }
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
- ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
@@ -1019,7 +1026,7 @@ function validator(form, isOnSubmit = false) {
 }
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
- ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
@@ -1055,7 +1062,7 @@ function runValidator() {
     }*/
 
     $(".jfv-form").each(function(index) {
-        let form = $(this); // The form of the index lap
+        const form = $(this); // The form of the index lap
 
         // Start the validation of the form form
         // And of course it will bind the event watcher to each input
@@ -1080,7 +1087,7 @@ function runValidator() {
 }
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
- ** * * * * * * * * * * * * * * * E * N * D * * * * * * * * * * * * * * * **
+ ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
@@ -1092,17 +1099,12 @@ function runValidator() {
 runValidator();
 
 
-
-
-
-
-
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
  *
  *
  *
- ** * * * * * * * * * * * * E N D  O F  J F V * * * * * * * * * * * * * * **
+ ** * * * * * * * * * *  E N D  *  O F  *  J F V   * * * * * * * * * * * * **
  *
  *
  *
