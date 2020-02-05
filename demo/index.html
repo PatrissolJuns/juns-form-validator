@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://rawcdn.githack.com/PatrissolJuns/juns-form-validator/cc44d99a9ed132b9125b2052a7a6c37ea7fe989a/jfv.min.css">
+
+  <title>Juns Form Validator Demo</title>
+</head>
+<body>
+  <div class="form">
+    <div class="en-US tab-group language-toggler">
+      <a class="_en-US active" href="#">English</a>
+      <p>&nbsp;|&nbsp;</p>
+      <a class="_fr-FR" href="#">French</a>
+    </div>
+    <div class="fr-FR tab-group language-toggler">
+      <a id="en-US" class="_en-US active" href="#">Anglais</a>
+      <p>&nbsp;|&nbsp;</p>
+      <a id="fr-FR" class="_fr-FR" href="#">Français</a>
+    </div>
+    <div class="tab-content">
+      <h2 class="en-US">Example of a Sign Up Form</h2>
+      <h2 class="fr-FR">Example d'un formulaire de création de compte</h2>
+
+      <form class="jfv-form" action="/" method="post">
+
+        <div class="top-row">
+          <div class="field-wrap">
+            <input
+                class="en-US"
+                type="text"
+                placeholder="First Name"
+                autocomplete="off"
+                jfv-type="range"
+                jfv-min="2"
+            />
+            <input
+                type="text"
+                class="fr-FR"
+                placeholder="Prénom"
+                autocomplete="off"
+                jfv-type="range"
+                jfv-min="2"
+            />
+          </div>
+
+          <div class="field-wrap">
+            <input
+                type="text"
+                class="en-US"
+                placeholder="Last Name"
+                autocomplete="off"
+                jfv-type="range"
+                jfv-min="2"
+            />
+            <input
+                type="text"
+                class="fr-FR"
+                placeholder="Nom"
+                autocomplete="off"
+                jfv-type="range"
+                jfv-min="2"
+            />
+          </div>
+        </div>
+
+        <div class="field-wrap">
+          <input
+              type="email"
+              class="en-US"
+              placeholder="Email Address"
+              autocomplete="off"
+          />
+          <input
+              type="email"
+              class="fr-FR"
+              placeholder="Addresse email"
+              autocomplete="off"
+          />
+        </div>
+
+        <div class="field-wrap">
+          <input
+              type="password"
+              class="en-US"
+              placeholder="Password"
+              autocomplete="off"
+              jfv-type="password"
+              jfv-min="4"
+              id="password_en"
+          />
+          <input
+              type="password"
+              class="fr-FR"
+              placeholder="Mot de passe"
+              autocomplete="off"
+              jfv-type="password"
+              jfv-min="4"
+              id="password_fr"
+          />
+        </div>
+
+        <div class="field-wrap">
+          <input
+              type="password"
+              class="en-US"
+              placeholder="Confirm Password"
+              autocomplete="off"
+              jfv-type="password"
+              jfv-name="password_confirmation"
+              jfv-ref="password_en"
+          />
+          <input
+              type="password"
+              class="fr-FR"
+              placeholder="Confirmation du mot de passe"
+              autocomplete="off"
+              jfv-type="password"
+              jfv-name="password_confirmation"
+              jfv-ref="password_fr"
+          />
+        </div>
+
+        <button type="submit" class="button button-block en-US">Get Started</button>
+        <button type="submit" class="button button-block fr-FR">Commencer</button>
+
+      </form>
+
+    </div><!-- tab-content -->
+
+  </div> <!-- /form -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://rawcdn.githack.com/PatrissolJuns/juns-form-validator/cc44d99a9ed132b9125b2052a7a6c37ea7fe989a/jfv.min.js"></script>
+  <script>
+    toggleLanguage = (from, to) => {
+      if(JFV_ERROR_MESSAGE.currentLanguage !== to) {
+          JFV_ERROR_MESSAGE.setLanguage(to);
+          $('._' + from).removeClass('active');
+          $('._' + to).addClass('active');
+          $('.' + from).hide();
+          $('.' + to).show();
+      }
+    };
+    const EN_US = 'en-US', FR_FR = 'fr-FR', fr = $('._' + FR_FR), en = $('._' + EN_US);
+    $('.' + FR_FR).hide();
+    fr.on('click', () => toggleLanguage(EN_US, FR_FR));
+    en.on('click', () => toggleLanguage(FR_FR, EN_US));
+  </script>
+</body>
+</html>

@@ -449,7 +449,7 @@ const JFV = {
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
-let ERROR_MESSAGE = new JFV.ErrorMessage();
+const JFV_ERROR_MESSAGE = new JFV.ErrorMessage();
 
 
 /* ************** Validator Functions ************** */
@@ -479,7 +479,7 @@ function emailChecker(element) {
     let regex = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i;
 
     return regex.test(element.val()) === true ? [true, ""] :
-        [false, ERROR_MESSAGE.getValueOfKey('email')];
+        [false, JFV_ERROR_MESSAGE.getValueOfKey('email')];
 }
 
 /**
@@ -506,7 +506,7 @@ function phoneChecker(element) {
  */
 function numberChecker(element) {
     // Get the result of checking whether the value is a number of not
-    let numberResult = /^[+-]?\d+(\.\d+)?$/.test(element.val()) ? [true, ""] : [false, ERROR_MESSAGE.getValueOfKey('number.number')];
+    let numberResult = /^[+-]?\d+(\.\d+)?$/.test(element.val()) ? [true, ""] : [false, JFV_ERROR_MESSAGE.getValueOfKey('number.number')];
 
     let rangeResult = [true, ""], // Initialize the rangeResult variable
         minLength = Number(element.jfv("min")), // Get the minimum value set
@@ -527,7 +527,7 @@ function numberChecker(element) {
                 : [
                     false,
                     errorMessage
-                        .reset(ERROR_MESSAGE.getValueOfKey('number.range'))
+                        .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.range'))
                         .setValue('minLength', minLength)
                         .setValue('maxLength', maxLength)
                         .getValue
@@ -539,7 +539,7 @@ function numberChecker(element) {
                 : [
                     false,
                     errorMessage
-                        .reset(ERROR_MESSAGE.getValueOfKey('number.min'))
+                        .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.min'))
                         .setValue('minLength', minLength)
                         .getValue
                   ];
@@ -550,7 +550,7 @@ function numberChecker(element) {
                 : [
                     false,
                     errorMessage
-                        .reset(ERROR_MESSAGE.getValueOfKey('number.max'))
+                        .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.max'))
                         .setValue('maxLength', maxLength)
                         .getValue
                   ];
@@ -567,7 +567,7 @@ function numberChecker(element) {
                 : [
                     false,
                     errorMessage
-                        .reset(ERROR_MESSAGE.getValueOfKey('number.equal'))
+                        .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.equal'))
                         .setValue('equalLength', equalLength)
                         .getValue
                   ];
@@ -590,10 +590,10 @@ function numberChecker(element) {
  * @returns {[boolean,string]}
  */
 function requiredChecker(element) {
-    /*if (element.val().length <= 0) return [false, ERROR_MESSAGE.getValueOfKey('required')];
+    /*if (element.val().length <= 0) return [false, JFV_ERROR_MESSAGE.getValueOfKey('required')];
     return [true, ""];*/
     return element.val().length <= 0
-            ? [false, ERROR_MESSAGE.getValueOfKey('required')]
+            ? [false, JFV_ERROR_MESSAGE.getValueOfKey('required')]
             : [true, ""];
 }
 
@@ -612,14 +612,14 @@ function minMaxCheckerCharacter(element) {
     if (length < minLength) return [
         false,
         errorMessage
-            .reset(ERROR_MESSAGE.getValueOfKey('character.min'))
+            .reset(JFV_ERROR_MESSAGE.getValueOfKey('character.min'))
             .setValue('minLength', minLength)
             .getValue
     ];
     else if (length > maxLength) return [
         false,
         errorMessage
-            .reset(ERROR_MESSAGE.getValueOfKey('character.max'))
+            .reset(JFV_ERROR_MESSAGE.getValueOfKey('character.max'))
             .setValue('maxLength', maxLength)
             .getValue
     ];
@@ -636,7 +636,7 @@ function equalChecker(element) {
     let length = Number(element.val().length);
     let equalLength = Number(element.jfv("equal")) ? Number(element.jfv("equal")) : 2;
 
-    let errorMessage = new JFV.Extractor(ERROR_MESSAGE.getValueOfKey('character.max'));
+    let errorMessage = new JFV.Extractor(JFV_ERROR_MESSAGE.getValueOfKey('character.max'));
 
     return length === equalLength
         ? [true, ""]
@@ -660,7 +660,7 @@ function equalChecker(element) {
 function passwordConfirmationChecker(element){
     let password = $('#' + ( element.jfv("ref") ? element.jfv("ref") : 'password')) ;
 
-    if(element.val() !== password.val()) return [false, ERROR_MESSAGE.getValueOfKey('password.confirmation')];
+    if(element.val() !== password.val()) return [false, JFV_ERROR_MESSAGE.getValueOfKey('password.confirmation')];
     else return [true, ""];
 }
 
