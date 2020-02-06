@@ -11,6 +11,9 @@ JFV (Juns Form Validator) is a set of functions which provides for a website som
 
 It is very easy to use and setup.
 
+## Demo
+
+[Demo link](https://jfv.letusdebug.com/) | [Source code of demo](https://github.com/PatrissolJuns/juns-form-validator/blob/master/demo/index.html)
 
 ## How to use JFV ?
 
@@ -19,10 +22,10 @@ Since JFV is build with javascript and jquery so you need to import jquery at le
 So just include `jfv.min.js`, `jfv.min.css` and `jquery.js` files like this
 
 ##### jfv.min.js
-`https://rawcdn.githack.com/PatrissolJuns/juns-form-validator/cc44d99a9ed132b9125b2052a7a6c37ea7fe989a/jfv.min.js`
+`https://raw.githack.com/PatrissolJuns/juns-form-validator/master/jfv.min.js`
 
 ##### jfv.min.css
-`https://rawcdn.githack.com/PatrissolJuns/juns-form-validator/cc44d99a9ed132b9125b2052a7a6c37ea7fe989a/jfv.min.css`
+`https://raw.githack.com/PatrissolJuns/juns-form-validator/master/jfv.min.css`
 
 Then you need to bind the class `jfv-form` to the form you which to check.
 
