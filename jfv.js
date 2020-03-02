@@ -450,6 +450,13 @@ const JFV = {
             return arr;
         })();
 
+        /**
+         * Generate an unique id
+         *
+         * From StackOverFlow https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+         *
+         * @returns {string}
+         */
         static getUniqueId() {
             const d0 = Math.random()*0xffffffff|0;
             const d1 = Math.random()*0xffffffff|0;
@@ -510,6 +517,22 @@ const JFV = {
             return result.length === 0 ? undefined : result[0][1];
         }
 
+        /**
+         * Check if an HTMLElement has a bound error HTMLElement
+         * @param element
+         * @returns {boolean}
+         */
+        static hasErrorMessage(element) {
+            return document.querySelectorAll(`[jfv-id='${jfv(element, 'id')}']`).length === 2;
+        }
+
+        /**
+         * Generate a new HTMLElement and set its jfv-id attribute
+         *
+         * @param {HTMLElement} element
+         * @param {string} errorMessage
+         * @returns {HTMLHeadingElement}
+         */
         static createErrorNode(element, errorMessage) {
             const newErrorNode = document.createElement("h6");
             newErrorNode.classList.add("jfv-error-message");
@@ -521,13 +544,34 @@ const JFV = {
         }
 
         static updateErrorMessage(element, errorMessage) {
-            element.innerHTML = errorMessage;
+            const boundErrorHtmlElement = this.getErrorHtmlElement(element);
+            if(boundErrorHtmlElement) {
+                if(errorMessage !== '') {
+                    boundErrorHtmlElement.innerHTML = errorMessage;
+                }
+                else this.removeErrorMessage(element);
+            }
         }
 
+        static removeErrorMessage(element) {
+            const boundErrorHtmlElement = this.getErrorHtmlElement(element);
+            if(boundErrorHtmlElement) boundErrorHtmlElement.remove();
+        }
+
+        static getErrorHtmlElement(element) {
+            const result = document.querySelectorAll(`[jfv-id='${jfv(element, 'id')}']`);
+
+            return result.length === 2 ? result[1] : null;
+        }
+
+        /**
+         * Define the jfv-id attribute of an HTMLElement
+         * @param element
+         */
         static setJfvIdAttribute(element) {
-            console.log(element);
-            if(element.getAttribute('jfv-id') === null) {
-                element.setAttribute('jfv-id', this.getUniqueId());
+            // TODO: element[0] should be replace by element
+            if(element[0].getAttribute('jfv-id') === null) {
+                element[0].setAttribute('jfv-id', this.getUniqueId());
             }
         }
     },
@@ -772,6 +816,9 @@ const JFV_VALIDATOR = JFV.Validator;
  * @param element
  */
 function setValidIndicator(element) {
+
+    JFV_DOM_TOOLS.removeErrorMessage(element[0]);
+
     element.removeClass(validationCLass.input[1], validationCLass.input[2]);
     element.addClass(validationCLass.input[0]);
 
@@ -801,11 +848,9 @@ function setValidIndicator(element) {
 function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit = false){
     // Color input in red or blue
     if(isOnSubmit) {
-
         element.removeClass(validationCLass.input[0], validationCLass.input[2]);
         element.addClass(validationCLass.input[1]);
     } else {
-
         element.removeClass(validationCLass.input[0], validationCLass.input[1]);
         element.addClass(validationCLass.input[2]);
     }
@@ -844,12 +889,11 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
  */
 function setInvalidErrorMessage(element, errorMessage, isOnSubmit, isPasswordInput) {
 
-    if(hasErrorMessage(element)) {
+    if(JFV_DOM_TOOLS.hasErrorMessage(element)) {
         JFV_DOM_TOOLS.updateErrorMessage(element, errorMessage);
     }
     else {
         const newErrorNode = JFV_DOM_TOOLS.createErrorNode(element, errorMessage);
-
         insertAfter(newErrorNode, element, isPasswordInput);
     }
 
@@ -862,10 +906,6 @@ function setInvalidErrorMessage(element, errorMessage, isOnSubmit, isPasswordInp
         newErrorNode.classList.remove(validationCLass.label[1]);
         newErrorNode.classList.add(validationCLass.label[2]);
     }*/
-}
-
-function hasErrorMessage(element) {
-   return document.querySelectorAll(`[jfv-id='${jfv(element, 'id')}']`).length === 2;
 }
 
 /**
@@ -917,6 +957,14 @@ const blurEventOnInput = once(function (element) {
     element.on("blur", function() { removeErrorMessage(); });
 });
 
+const focusEventOnInput = once(function (element) {
+    element.on("focus", function() { inputValidator(element); });
+});
+
+const keyupEventOnInput = once(function (element) {
+    element.on("keyup", function() { inputValidator(element); });
+});
+
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
  * * * E  N  D  *  O F  *  V A L I D A T O R  *  F U N C T I O N S  * * * **
@@ -952,7 +1000,7 @@ function inputValidator(element, isOnSubmit = false) {
     let isPasswordInput = false;
 
     // remove previous message to avoid case like the input now is valid
-    removeErrorMessage();
+    // removeErrorMessage();
 
     // Call the blur effect in order to remove the error message on blur
     // Note: This this will be executed only once :)
@@ -1045,14 +1093,10 @@ function validator(form, isOnSubmit = false) {
                     JFV_DOM_TOOLS.setJfvIdAttribute(element);
 
                     // Bind focus event to handle validation
-                    element.on("focus", function() {
-                        inputValidator(element);
-                    });
+                    focusEventOnInput(element);
 
                     // Add keyup event to increase the management of validation
-                    element.on("keyup", function() {
-                        inputValidator(element);
-                    });
+                    keyupEventOnInput(element);
 
                     if(isOnSubmit) inputValidator(element, true) ?
                         isValidArray.push(true) :
@@ -1097,18 +1141,21 @@ function runValidator() {
         // Check whether the form is going to be send through ajax or not
         if($(form).jfv("ajax") === "true") isAjax = true;
 
-        form.on("submit", function(event) {
-            event.preventDefault();
+        (once(function (form) {
+            form.on("submit", function(event) {
+                event.preventDefault();
 
-            // Check the form one last time before sending it or not
-            // This is to be sur that all the inputs is good
-            if(validator(form, true)) {
-                // In case where the form is not going to be send through ajax, simply send the form
-                if(!isAjax) event.currentTarget.submit();
-            }
-            // It means the form is not correct so cancel the the request
-            else event.stopImmediatePropagation();
-        });
+                // Check the form one last time before sending it or not
+                // This is to be sur that all the inputs is good
+                if(validator(form, true)) {
+                    // In case where the form is not going to be send through ajax, simply send the form
+                    if(!isAjax) event.currentTarget.submit();
+                }
+                // It means the form is not correct so cancel the the request
+                else event.stopImmediatePropagation();
+            });
+        }))(form);
+
     });
 }
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
