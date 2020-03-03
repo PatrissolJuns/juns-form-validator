@@ -956,9 +956,11 @@ function once(fn, context) {
 const blurEventOnInput = once(function (element) {
     element.on("blur", function() { removeErrorMessage(); });
 });
-
+const focusArr = [];
 const focusEventOnInput = once(function (element) {
-    element.on("focus", function() { inputValidator(element); });
+    if(!focusArr[element]) {
+        element.on("focus", function() { inputValidator(element); });
+    }
 });
 
 const keyupEventOnInput = once(function (element) {
@@ -1060,7 +1062,10 @@ function inputValidator(element, isOnSubmit = false) {
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
-
+const EVENT_ITEM_ARR = {
+    FOCUS: new Set(),
+    KEYUP: new Set(),
+};
 
 /**
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1093,10 +1098,18 @@ function validator(form, isOnSubmit = false) {
                     JFV_DOM_TOOLS.setJfvIdAttribute(element);
 
                     // Bind focus event to handle validation
-                    focusEventOnInput(element);
+                    // Check for older bound in order to have the handler only once
+                    if(!EVENT_ITEM_ARR.FOCUS.has(jfv(element[0], 'id'))) {
+                        element.on("focus", function() { inputValidator(element); });
+                        EVENT_ITEM_ARR.FOCUS.add(jfv(element[0], 'id'));
+                    }
 
                     // Add keyup event to increase the management of validation
-                    keyupEventOnInput(element);
+                    // Check for older bound in order to have the handler only once
+                    if(!EVENT_ITEM_ARR.KEYUP.has(jfv(element[0], 'id'))) {
+                        element.on("keyup", function() { inputValidator(element); });
+                        EVENT_ITEM_ARR.KEYUP.add(jfv(element[0], 'id'));
+                    }
 
                     if(isOnSubmit) inputValidator(element, true) ?
                         isValidArray.push(true) :
@@ -1141,20 +1154,18 @@ function runValidator() {
         // Check whether the form is going to be send through ajax or not
         if($(form).jfv("ajax") === "true") isAjax = true;
 
-        (once(function (form) {
-            form.on("submit", function(event) {
-                event.preventDefault();
+        form.on("submit", function(event) {
+            event.preventDefault();
 
-                // Check the form one last time before sending it or not
-                // This is to be sur that all the inputs is good
-                if(validator(form, true)) {
-                    // In case where the form is not going to be send through ajax, simply send the form
-                    if(!isAjax) event.currentTarget.submit();
-                }
-                // It means the form is not correct so cancel the the request
-                else event.stopImmediatePropagation();
-            });
-        }))(form);
+            // Check the form one last time before sending it or not
+            // This is to be sur that all the inputs is good
+            if(validator(form, true)) {
+                // In case where the form is not going to be send through ajax, simply send the form
+                if(!isAjax) event.currentTarget.submit();
+            }
+            // It means the form is not correct so cancel the the request
+            else event.stopImmediatePropagation();
+        });
 
     });
 }
