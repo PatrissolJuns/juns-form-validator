@@ -807,6 +807,11 @@ const jfv = JFV_DOM_TOOLS.jfv;
 
 const JFV_VALIDATOR = JFV.Validator;
 
+const JFV_EVENT_ITEM_ARR = {
+    FOCUS: new Set(),
+    KEYUP: new Set(),
+};
+
 /* ************** Validator Functions ************** */
 
 
@@ -956,16 +961,6 @@ function once(fn, context) {
 const blurEventOnInput = once(function (element) {
     element.on("blur", function() { removeErrorMessage(); });
 });
-const focusArr = [];
-const focusEventOnInput = once(function (element) {
-    if(!focusArr[element]) {
-        element.on("focus", function() { inputValidator(element); });
-    }
-});
-
-const keyupEventOnInput = once(function (element) {
-    element.on("keyup", function() { inputValidator(element); });
-});
 
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
@@ -1062,10 +1057,6 @@ function inputValidator(element, isOnSubmit = false) {
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
-const EVENT_ITEM_ARR = {
-    FOCUS: new Set(),
-    KEYUP: new Set(),
-};
 
 /**
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1099,16 +1090,16 @@ function validator(form, isOnSubmit = false) {
 
                     // Bind focus event to handle validation
                     // Check for older bound in order to have the handler only once
-                    if(!EVENT_ITEM_ARR.FOCUS.has(jfv(element[0], 'id'))) {
+                    if(!JFV_EVENT_ITEM_ARR.FOCUS.has(jfv(element[0], 'id'))) {
                         element.on("focus", function() { inputValidator(element); });
-                        EVENT_ITEM_ARR.FOCUS.add(jfv(element[0], 'id'));
+                        JFV_EVENT_ITEM_ARR.FOCUS.add(jfv(element[0], 'id'));
                     }
 
                     // Add keyup event to increase the management of validation
                     // Check for older bound in order to have the handler only once
-                    if(!EVENT_ITEM_ARR.KEYUP.has(jfv(element[0], 'id'))) {
+                    if(!JFV_EVENT_ITEM_ARR.KEYUP.has(jfv(element[0], 'id'))) {
                         element.on("keyup", function() { inputValidator(element); });
-                        EVENT_ITEM_ARR.KEYUP.add(jfv(element[0], 'id'));
+                        JFV_EVENT_ITEM_ARR.KEYUP.add(jfv(element[0], 'id'));
                     }
 
                     if(isOnSubmit) inputValidator(element, true) ?
@@ -1144,17 +1135,17 @@ function validator(form, isOnSubmit = false) {
 function runValidator() {
     let isAjax = false;
 
-    $(".jfv-form").each(function(index) {
-        const form = $(this); // The form of the index lap
+    // Get all the form to work on
+    const forms = document.querySelectorAll('.jfv-form');
 
-        // Start the validation of the form
-        // And of course it will bind the event watcher to each input
-        validator(form, false);
+    for(const form of forms.values()) {
+        // Apply the validator to each form in order to initialize the event listener
+        validator($(form), false);
 
         // Check whether the form is going to be send through ajax or not
         if($(form).jfv("ajax") === "true") isAjax = true;
 
-        form.on("submit", function(event) {
+        $(form).on("submit", function(event) {
             event.preventDefault();
 
             // Check the form one last time before sending it or not
@@ -1166,8 +1157,7 @@ function runValidator() {
             // It means the form is not correct so cancel the the request
             else event.stopImmediatePropagation();
         });
-
-    });
+    }
 }
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
