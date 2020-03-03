@@ -242,33 +242,59 @@ const JFV = {
             }
         };
 
-        constructor() {
-            // Get the language of the browser
-            this.currentLanguage = navigator.language || navigator.userLanguage;
+        static personalErrorMessages = [];
 
-            const LanguageError = "Unknown language " + this.currentLanguage;
+        // Get the language of the browser
+        static currentLanguage = (() => {
+            const currentLanguage = navigator.language || navigator.userLanguage;
+
+            const LanguageError = "Unknown language " + currentLanguage;
 
             try {
                 // Test if the language is handle or not
-                if(!Object.keys(this.constructor.errorJSON).includes(this.currentLanguage)) {
+                if(!Object.keys(this.errorJSON).includes(currentLanguage)) {
                     throw new Error(LanguageError);
                 }
+                return currentLanguage;
             }
             catch (e) {
                 throw e;
             }
+        })();
 
+        /**
+         * Get a value of a key
+         *
+         * @param {string} key E.g: 'number', 'number.min', etc.
+         * @param element
+         */
+        static getValueOfKey(key, element = null) {
+            const isElementPresent = element && this.isFieldPresent(element.id);
+            // Get the current language dictionary
+            let currentLanguageDictionary = isElementPresent ? this.getFieldMessagesWithLanguage(element.id) : this.errorJSON[this.currentLanguage];
+
+            const result = this.getValueOfKeyFromLanguageDictionary(key, currentLanguageDictionary, element);
+
+            if(isElementPresent && result === undefined) {
+                return this.getValueOfKeyFromLanguageDictionary(key, this.errorJSON[this.currentLanguage], element);
+            }
+
+            return result;
         }
 
         /**
          * Get a value of a key
          *
          * @param {string} key E.g: 'number', 'number.min', etc.
+         * @param languageDictionary
+         * @param element
          */
-        getValueOfKey(key) {
+        static getValueOfKeyFromLanguageDictionary(key, languageDictionary, element = null) {
             let currentKey = key, // Copy the key parameter
-                currentLanguageDictionary = this.constructor.errorJSON[this.currentLanguage], // Get the current language dictionary
-                response = undefined; // Set the response undefined to handle all cases
+                currentLanguageDictionary = languageDictionary, // Get the current language dictionary
+                response = []; // Set the response undefined to handle all cases
+
+            if(element) console.log("currentLanguageDictionary ==> ",currentLanguageDictionary);
 
             // The regex bellow match string like something or something.something n times
             const match = /^((\w+)\.)+\w+$|^(\w+)$/;
@@ -293,6 +319,11 @@ const JFV = {
                         try {
                             // Get the content of the first key according to the current language dictionary
                             response = currentLanguageDictionary[firstKey];
+
+                            // For case where the object does have the key
+                            if(response === undefined) {
+                                return response;
+                            }
                         }
                         catch (e) {
                             // Else return the previous property value
@@ -323,12 +354,12 @@ const JFV = {
          * @param language
          * @returns {JFV.ErrorMessage}
          */
-        setLanguage(language) {
+        static setLanguage(language) {
             const LanguageError = "Unknown language " + language;
 
             try {
                 // Test if the language is handle or not
-                if(Object.keys(this.constructor.errorJSON).includes(language)) {
+                if(Object.keys(this.errorJSON).includes(language)) {
                     this.currentLanguage = language;
                 }
                 else throw new Error(LanguageError);
@@ -340,6 +371,65 @@ const JFV = {
             return this;
         }
 
+        static FormAPI = class {
+            form = '';
+            constructor(FormObject) {
+                this.form = FormObject;
+                this.element = document.getElementById(this.form.formId);
+            }
+
+            getFields() {
+                return this.form.fields.map(f => f.id);
+            }
+
+            getFieldById(id) {
+                return this.form.fields.find(f => f.id === id);
+            }
+
+            isInputPresent(id) {
+                if(!id) return false;
+                return this.getFields().includes(id);
+            }
+        }
+
+        static isFieldPresent(id) {
+            return this.personalErrorMessages
+                        .some(f => (new this.FormAPI(f)).isInputPresent(id));
+        }
+
+        static getField(id) {
+            if(this.isFieldPresent(id)) {
+                for(const form of this.personalErrorMessages) {
+                    const formAPI = new this.FormAPI(form);
+                    const result = formAPI.getFieldById(id);
+                    if(result) return result;
+                }
+            }
+            return false;
+        }
+
+        static getFieldMessages(id) {
+            if(this.isFieldPresent(id)) {
+                return this.getField(id).messages;
+            }
+            return null;
+        }
+
+        static getFieldMessagesWithLanguage(id) {
+            const messages = this.getFieldMessages(id);
+            if(messages) {
+                if(messages.hasOwnProperty(this.currentLanguage)) {
+                    return messages[this.currentLanguage];
+                }
+                // Fallback language
+                else if(messages.hasOwnProperty('en-US')){
+                    return messages['en-US'];
+                }
+                else {
+                    return messages;
+                }
+            }
+        }
 
     },
 
@@ -476,6 +566,21 @@ const JFV = {
                 element.setAttribute('jfv-id', this.getUniqueId());
             }
         }
+
+        static findFormAncestor (el) {
+            let shouldStop = false;
+            let node = null;
+            while(shouldStop) {
+                const parent = el.parentElement;
+                if(parent.tagName === 'FORM'){
+                    shouldStop = true;
+                    node = parent;
+                }
+                else if(parent.tagName === 'BODY') shouldStop = true;
+                else if(parent.tagName === 'HTML') shouldStop = true;
+            }
+            return node;
+        }
     },
 
     Validator: class {
@@ -565,7 +670,7 @@ const JFV = {
                         : [
                             false,
                             errorMessage
-                                .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.min'))
+                                .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.min', element))
                                 .setValue('minLength', minLength)
                                 .getValue
                         ];
@@ -643,7 +748,7 @@ const JFV = {
             if (length < minLength) return [
                 false,
                 errorMessage
-                    .reset(JFV_ERROR_MESSAGE.getValueOfKey('character.min'))
+                    .reset(JFV_ERROR_MESSAGE.getValueOfKey('character.min', element))
                     .setValue('minLength', minLength)
                     .getValue
             ];
@@ -696,6 +801,10 @@ const JFV = {
                 ];
         }
 
+    },
+
+    Personalize(FormArray) {
+        JFV.ErrorMessage.personalErrorMessages = FormArray;
     }
 };
 
@@ -706,7 +815,7 @@ const JFV = {
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
-const JFV_ERROR_MESSAGE = new JFV.ErrorMessage();
+const JFV_ERROR_MESSAGE = JFV.ErrorMessage;
 
 
 const JFV_DOM_TOOLS = JFV.DomTool;
@@ -1121,3 +1230,28 @@ runValidator();
  *
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
+
+/*
+
+JFV.Personalize([
+      {
+        formId: 'my-form',
+        fields: [{
+          id: 't1',
+          messages: {
+            'fr-FR': {
+              character: {
+                min: "Entrer au moins 2 charactères"
+              }
+            },
+            'en-US': {
+              character: {
+                min: "Enter at least 3 characters"
+              }
+            }
+          }
+        }]
+      }
+    ]);
+
+ */
