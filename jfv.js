@@ -54,104 +54,6 @@ const validationCLass = {
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
 
-
-/**
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *                                                                         *
- * This function returns the list of all attributes of an element          *
- *                                                                         *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
-(function(old) {
-    $.fn.attr = function() {
-        if(arguments.length === 0) {
-            if(this.length === 0) return null;
-
-            let obj = {};
-            $.each(this[0].attributes, function() {
-                if(this.specified) {
-                    obj[this.name] = this.value;
-                }
-            });
-            return obj;
-        }
-
-        return old.apply(this, arguments);
-    };
-})($.fn.attr);
-
-/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
- *
- ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
- *
- ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-
-
-
-/**
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *                                                                         *
- * This function with no argument returns the list of all jfv attributes   *
- *                                                                         *
- * of an element.                                                          *
- *                                                                         *
- * With one argument returns the value of the jfv element if exists.       *
- *                                                                         *
- *                                                                         *
- *  E.g: $('#my-input-text').jfv('min'); // return the value of the        *
- *                                                                         *
- *  attribute jfv-min                                                      *
- *                                                                         *
- *                                                                         *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- */
-(function(old) {
-    $.fn.jfv = function() {
-        
-        if(this === undefined || this === null)
-            return arguments.length === 0 ? [] : undefined;
-
-        if(arguments.length === 0) {
-            
-            // First obtain an array which contains only a couple of jfv attribute and its value
-            let jfvEntries = Object.entries(this[0].attributes)
-                                .map(attr => [attr[1].name, attr[1].value])
-                                .filter(a => /jfv/.test(a[0]));
-
-            // Check if the array is empty
-            if(jfvEntries.length === 0) return [];
-
-            // Then map the obtained array to get an array with only the right attribute
-            return jfvEntries.map(a => a[0].replace('jfv-', ''));
-        }
-        else if(arguments.length === 1) {
-            // Create a regex composed with the argument
-            let regex = new RegExp("jfv-"+arguments[0]);
-
-            // Map the array of all attributes to get a new one with only attribute's name and value
-            // Filter the obtained array to get only the jfv attribute and its value
-            let result = Object.entries(this[0].attributes)
-                                .map(attr => [attr[1].name, attr[1].value])
-                                .filter(a => regex.test(a[0]));
-
-            // Check if the argument has been found into jfv array
-            if(result.length === 0) return undefined;
-
-            // Return the value of the attribute
-            return result[0][1];
-        }
-
-        return [];
-    };
-})($.fn.jfv);
-
-/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
- *
- ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
- *
- ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-
-
 /**
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                         *
@@ -361,7 +263,7 @@ const JFV = {
         /**
          * Get a value of a key
          *
-         * @param key {string} E.g: 'number', 'number.min', etc.
+         * @param {string} key E.g: 'number', 'number.min', etc.
          */
         getValueOfKey(key) {
             let currentKey = key, // Copy the key parameter
@@ -439,6 +341,361 @@ const JFV = {
         }
 
 
+    },
+
+    DomTool: class {
+        constructor() {}
+
+        static TABLE_OF_256_HEXADECIMAL = (function () {
+            const arr = [];
+            for (let i = 0; i < 256; i++) { arr[i] = (i < 16 ? '0': '') + (i).toString(16); }
+            return arr;
+        })();
+
+        /**
+         * Generate an unique id
+         *
+         * From StackOverFlow https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+         *
+         * @returns {string}
+         */
+        static getUniqueId() {
+            const d0 = Math.random()*0xffffffff|0;
+            const d1 = Math.random()*0xffffffff|0;
+            const d2 = Math.random()*0xffffffff|0;
+            const d3 = Math.random()*0xffffffff|0;
+            return this.TABLE_OF_256_HEXADECIMAL[d0&0xff]+this.TABLE_OF_256_HEXADECIMAL[d0>>8&0xff]+this.TABLE_OF_256_HEXADECIMAL[d0>>16&0xff]+this.TABLE_OF_256_HEXADECIMAL[d0>>24&0xff]+'-'+
+                this.TABLE_OF_256_HEXADECIMAL[d1&0xff]+this.TABLE_OF_256_HEXADECIMAL[d1>>8&0xff]+'-'+this.TABLE_OF_256_HEXADECIMAL[d1>>16&0x0f|0x40]+this.TABLE_OF_256_HEXADECIMAL[d1>>24&0xff]+'-'+
+                this.TABLE_OF_256_HEXADECIMAL[d2&0x3f|0x80]+this.TABLE_OF_256_HEXADECIMAL[d2>>8&0xff]+'-'+this.TABLE_OF_256_HEXADECIMAL[d2>>16&0xff]+this.TABLE_OF_256_HEXADECIMAL[d2>>24&0xff]+
+                this.TABLE_OF_256_HEXADECIMAL[d3&0xff]+this.TABLE_OF_256_HEXADECIMAL[d3>>8&0xff]+this.TABLE_OF_256_HEXADECIMAL[d3>>16&0xff]+this.TABLE_OF_256_HEXADECIMAL[d3>>24&0xff];
+        }
+
+        /**
+         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+         *                                                                         *
+         * This function with no argument returns the list of all jfv attributes   *
+         *                                                                         *
+         * of an element.                                                          *
+         *                                                                         *
+         * With one argument returns the value of the jfv element if exists.       *
+         *                                                                         *
+         *                                                                         *
+         *  E.g: $('#my-input-text').jfv('min'); // return the value of the        *
+         *                                                                         *
+         *  attribute jfv-min                                                      *
+         *                                                                         *
+         *  @param {Element} element                                           *
+         *  @param {string} attribute                                             *
+         *  @return {Array|string|undefined}                                                                       *
+         *                                                                         *
+         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+         */
+        static jfv(element, attribute = '') {
+
+            // Check if the element is a node
+            if(element === undefined || element === null)
+                return attribute === '' ? [] : undefined;
+
+            if(attribute === '') {
+                // First obtain an array which contains only a couple of jfv attribute and its value
+                const jfvEntries = Object.entries($(element)[0].attributes)
+                    .map(attr => [attr[1].name, attr[1].value])
+                    .filter(a => /jfv/.test(a[0]));
+
+                // if the array is empty then return an empty array
+                // else map the obtained array to get an array with only the right attribute
+                return jfvEntries.length === 0 ? [] : jfvEntries.map(a => a[0].replace('jfv-', ''));
+            }
+
+            // Create a regex composed with the argument
+            const regex = new RegExp("jfv-" + attribute);
+
+            // Map the array of all attributes to get a new one with only attribute's name and value
+            // Filter the obtained array to get only the jfv attribute and its value
+            const result = Object.entries($(element)[0].attributes)
+                .map(attr => [attr[1].name, attr[1].value])
+                .filter(a => regex.test(a[0]));
+
+            // Return the value of the attribute or undefined if attribute has not been found into jfv array
+            return result.length === 0 ? undefined : result[0][1];
+        }
+
+        /**
+         * Check if an HTMLElement has a bound error HTMLElement
+         * @param element
+         * @returns {boolean}
+         */
+        static hasErrorMessage(element) {
+            return document.querySelectorAll(`[jfv-id='${jfv(element, 'id')}']`).length === 2;
+        }
+
+        /**
+         * Generate a new HTMLElement and set its jfv-id attribute
+         *
+         * @param {HTMLElement} element
+         * @param {string} errorMessage
+         * @returns {HTMLHeadingElement}
+         */
+        static createErrorNode(element, errorMessage) {
+            const newErrorNode = document.createElement("h6");
+            newErrorNode.classList.add("jfv-error-message");
+            newErrorNode.classList.add("jfv-display-error-message");
+            newErrorNode.innerHTML = errorMessage;
+            newErrorNode.setAttribute('jfv-id', jfv(element, 'id'));
+
+            return newErrorNode;
+        }
+
+        static updateErrorMessage(element, errorMessage) {
+            const boundErrorHtmlElement = this.getErrorHtmlElement(element);
+            if(boundErrorHtmlElement) {
+                if(errorMessage !== '') {
+                    boundErrorHtmlElement.innerHTML = errorMessage;
+                }
+                else this.removeErrorMessage(element);
+            }
+        }
+
+        static removeErrorMessage(element) {
+            const boundErrorHtmlElement = this.getErrorHtmlElement(element);
+            if(boundErrorHtmlElement) boundErrorHtmlElement.remove();
+        }
+
+        static getErrorHtmlElement(element) {
+            const result = document.querySelectorAll(`[jfv-id='${jfv(element, 'id')}']`);
+
+            return result.length === 2 ? result[1] : null;
+        }
+
+        /**
+         * Define the jfv-id attribute of an HTMLElement
+         * @param {HTMLElement} element
+         */
+        static setJfvIdAttribute(element) {
+            if(element.getAttribute('jfv-id') === null) {
+                element.setAttribute('jfv-id', this.getUniqueId());
+            }
+        }
+    },
+
+    Validator: class {
+        constructor() {}
+
+        /*
+         * The methods with {something}Checker is used to check a special parameter of an input
+         *
+         * @param {HTMLElement} element Element or input to test
+         * @returns {*[]} Contains the validation state and the message. E.g: [false, "The age must be less than 150"]
+         */
+
+        /**
+         * @param {HTMLElement} element
+         * @returns {[boolean,string]}
+         */
+        static emptyChecker(element) {
+            if (element.value.length > 510) return [false, `Please enter at most 510 character(s)`];
+            else return [true, ""];
+        }
+
+        /**
+         * @param {HTMLElement} element
+         * @returns {[boolean,string]}
+         */
+        static emailChecker(element) {
+            let regex = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i;
+
+            return regex.test(element.value) === true ? [true, ""] :
+                [false, JFV_ERROR_MESSAGE.getValueOfKey('email')];
+        }
+
+        /**
+         * This one handles required field
+         *
+         * @param {HTMLElement} element
+         * @returns {[boolean,string]}
+         */
+        static requiredChecker(element) {
+            /*if (element.value.length <= 0) return [false, JFV_ERROR_MESSAGE.getValueOfKey('required')];
+            return [true, ""];*/
+            return element.value.length <= 0
+                ? [false, JFV_ERROR_MESSAGE.getValueOfKey('required')]
+                : [true, ""];
+        }
+
+        /**
+         * This one handles the checking of number
+         *
+         * @param {HTMLElement} element
+         * @returns {[boolean,string]}
+         */
+        static numberChecker(element) {
+            // Get the result of checking whether the value is a number of not
+            const numberResult = /^[+-]?\d+(\.\d+)?$/.test(element.value)
+                                    ? [true, ""]
+                                    : [false, JFV_ERROR_MESSAGE.getValueOfKey('number.number')];
+
+            let rangeResult = [true, ""], // Initialize the rangeResult variable
+                minLength = Number(jfv(element, "min")), // Get the minimum value set
+                maxLength = Number(jfv(element, "max")); // Get the maximum value set
+
+            // Get the parsed value of element in Number
+            const length = Number(element.value);
+
+            // Create the errorMessage variable to handle error message
+            const errorMessage = new JFV.Extractor('');
+
+            // Test if the
+            if(minLength || maxLength) {
+
+                if(minLength && maxLength)
+                    rangeResult = (length >= minLength && length <= maxLength)
+                        ? [true, ""]
+                        : [
+                            false,
+                            errorMessage
+                                .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.range'))
+                                .setValue('minLength', minLength)
+                                .setValue('maxLength', maxLength)
+                                .getValue
+                        ];
+
+                else if(minLength)
+                    rangeResult = (length >= minLength)
+                        ? [true, ""]
+                        : [
+                            false,
+                            errorMessage
+                                .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.min'))
+                                .setValue('minLength', minLength)
+                                .getValue
+                        ];
+
+                else
+                    rangeResult = (length <= maxLength)
+                        ? [true, ""]
+                        : [
+                            false,
+                            errorMessage
+                                .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.max'))
+                                .setValue('maxLength', maxLength)
+                                .getValue
+                        ];
+
+            }
+
+            else {
+                // Get the number that the value should be equal
+                let equalLength = jfv(element, "equal");
+
+                if (equalLength) {
+                    rangeResult = (length <= maxLength)
+                        ? [true, ""]
+                        : [
+                            false,
+                            errorMessage
+                                .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.equal'))
+                                .setValue('equalLength', equalLength)
+                                .getValue
+                        ];
+                }
+            }
+
+            // Return the error if the test was false
+            // Note: We perform this check here because we want to show only one error message
+            // no matters the different type of message that it can show
+            if(!numberResult[0] && rangeResult[0])  return numberResult;
+            else if(numberResult[0] && !rangeResult[0])  return rangeResult;
+            else if(!numberResult[0] && !rangeResult[0])  return rangeResult;
+            else return [true, ""];
+        }
+
+        /**
+         * This one handles the confirmation of a password
+         *
+         * It means that it checks if a password field and its confirmation one are equals
+         *
+         * @param {HTMLElement} element
+         * @returns {[boolean,string]}
+         */
+        static passwordConfirmationChecker(element){
+            const password = document.getElementById(jfv(element, "ref")) ;
+
+            if(!password) {
+                console.error("An error occur: the value of jfv-ref attribute of confirmation password must be an valid id of a HTMLElement")
+            }
+
+            if(element.value !== password.value) return [false, JFV_ERROR_MESSAGE.getValueOfKey('password.confirmation')];
+            else return [true, ""];
+        }
+
+        /**
+         *
+         * TODO: DELETE THIS FUNCTION
+         * @param {HTMLElement} element
+         * @returns {[boolean,string]}
+         */
+        static minMaxCheckerCharacter(element) {
+            const length = Number(element.value.length);
+            const minLength = Number(jfv(element, "min"));
+            const maxLength = Number(jfv(element, "max"));
+            const errorMessage = new JFV.Extractor('');
+
+            if (length < minLength) return [
+                false,
+                errorMessage
+                    .reset(JFV_ERROR_MESSAGE.getValueOfKey('character.min'))
+                    .setValue('minLength', minLength)
+                    .getValue
+            ];
+            else if (length > maxLength) return [
+                false,
+                errorMessage
+                    .reset(JFV_ERROR_MESSAGE.getValueOfKey('character.max'))
+                    .setValue('maxLength', maxLength)
+                    .getValue
+            ];
+            else return [true, ""];
+        }
+
+        /**
+         * @param {HTMLElement} element
+         * @returns {[boolean,string]}
+         */
+        static phoneChecker(element) {
+            let number_length = element.value.length;
+            // let regex = /^(2|6)(5|6|7|8|9)[0-9]{7}$/ig;
+            let regex = /^(2|6)[0-9]{8}$/ig;
+
+            //Check the length of the number
+            if(jfv(element, "optional") !== undefined && element.value === "") return [true, ""];
+            else if(number_length < 9 || number_length > 9) return [false, "Le numéro doit avoir exactement 9 chiffres"];
+            else if( !regex.test(element.value) ) return [false, "Veuillez entrer un numéro au format camerounais"];
+            else return [true, ''];
+        }
+
+
+        /**
+         * TODO: DELETE THIS FUNCTION
+         *
+         * @param {HTMLElement} element
+         * @returns {[boolean,string]}
+         */
+        static equalChecker(element) {
+            let length = Number(element.value.length);
+            let equalLength = Number(jfv(element, "equal")) ? Number(jfv(element, "equal")) : 2;
+
+            let errorMessage = new JFV.Extractor(JFV_ERROR_MESSAGE.getValueOfKey('character.max'));
+
+            return length === equalLength
+                ? [true, ""]
+                : [
+                    false,
+                    errorMessage
+                        .setValue('equalLength', equalLength)
+                        .getValue
+                ];
+        }
+
     }
 };
 
@@ -452,217 +709,19 @@ const JFV = {
 const JFV_ERROR_MESSAGE = new JFV.ErrorMessage();
 
 
+const JFV_DOM_TOOLS = JFV.DomTool;
+
+const jfv = JFV_DOM_TOOLS.jfv;
+
+const JFV_VALIDATOR = JFV.Validator;
+
+const JFV_EVENT_ITEM_ARR = {
+    FOCUS: new Set(),
+    KEYUP: new Set(),
+};
+
 /* ************** Validator Functions ************** */
 
-/**
- * The functions with somethingChecker is used to check a special parameter of an input
- *
- * @param element Element or input to test
- * @returns {*[]} Contains the validation state and the message. E.g: [false, "The age must be less than 150"]
- */
-
-
-/**
- * @param element
- * @returns {[boolean,string]}
- */
-function emptyChecker(element) {
-    if (element.val().length > 510) return [false, `Please enter at most 510 character(s)`];
-    else return [true, ""];
-}
-
-/**
- * @param element
- * @returns {[boolean,string]}
- */
-function emailChecker(element) {
-    let regex = /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,6}$/i;
-
-    return regex.test(element.val()) === true ? [true, ""] :
-        [false, JFV_ERROR_MESSAGE.getValueOfKey('email')];
-}
-
-/**
- * @param element
- * @returns {[boolean,string]}
- */
-function phoneChecker(element) {
-    let number_length = element.value.length;
-    // let regex = /^(2|6)(5|6|7|8|9)[0-9]{7}$/ig;
-    let regex = /^(2|6)[0-9]{8}$/ig;
-
-    //Check the length of the number
-    if($(element).jfv("optional") !== undefined && element.value === "") return [true, ""];
-    else if(number_length < 9 || number_length > 9) return [false, "Le numéro doit avoir exactement 9 chiffres"];
-    else if( !regex.test(element.value) ) return [false, "Veuillez entrer un numéro au format camerounais"];
-    else return [true, ''];
-}
-
-/**
- * This one handles the checking of number
- *
- * @param element
- * @returns {[boolean,string]}
- */
-function numberChecker(element) {
-    // Get the result of checking whether the value is a number of not
-    let numberResult = /^[+-]?\d+(\.\d+)?$/.test(element.val()) ? [true, ""] : [false, JFV_ERROR_MESSAGE.getValueOfKey('number.number')];
-
-    let rangeResult = [true, ""], // Initialize the rangeResult variable
-        minLength = Number(element.jfv("min")), // Get the minimum value set
-        maxLength = Number(element.jfv("max")); // Get the maximum value set
-
-    // Get the parsed value of element in Number
-    let length = Number(element.val());
-
-    // Create the errorMessage variable to handle error message
-    let errorMessage = new JFV.Extractor('');
-
-    // Test if the
-    if(minLength || maxLength) {
-
-        if(minLength && maxLength)
-            rangeResult = (length >= minLength && length <= maxLength)
-                ? [true, ""]
-                : [
-                    false,
-                    errorMessage
-                        .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.range'))
-                        .setValue('minLength', minLength)
-                        .setValue('maxLength', maxLength)
-                        .getValue
-                  ];
-
-        else if(minLength)
-            rangeResult = (length >= minLength)
-                ? [true, ""]
-                : [
-                    false,
-                    errorMessage
-                        .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.min'))
-                        .setValue('minLength', minLength)
-                        .getValue
-                  ];
-
-        else
-            rangeResult = (length <= maxLength)
-                ? [true, ""]
-                : [
-                    false,
-                    errorMessage
-                        .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.max'))
-                        .setValue('maxLength', maxLength)
-                        .getValue
-                  ];
-
-    }
-
-    else {
-        // Get the number that the value should be equal
-        let equalLength = element.jfv("equal");
-
-        if (equalLength) {
-            rangeResult = (length <= maxLength)
-                ? [true, ""]
-                : [
-                    false,
-                    errorMessage
-                        .reset(JFV_ERROR_MESSAGE.getValueOfKey('number.equal'))
-                        .setValue('equalLength', equalLength)
-                        .getValue
-                  ];
-        }
-    }
-
-    // Return the error if the test was false
-    // Note: We perform this check here because we want to show only one error message
-    // no matters the different type of message that it can show
-    if(!numberResult[0] && rangeResult[0])  return numberResult;
-    else if(numberResult[0] && !rangeResult[0])  return rangeResult;
-    else if(!numberResult[0] && !rangeResult[0])  return rangeResult;
-    else return [true, ""];
-}
-
-/**
- * This one handles required field
- *
- * @param element
- * @returns {[boolean,string]}
- */
-function requiredChecker(element) {
-    /*if (element.val().length <= 0) return [false, JFV_ERROR_MESSAGE.getValueOfKey('required')];
-    return [true, ""];*/
-    return element.val().length <= 0
-            ? [false, JFV_ERROR_MESSAGE.getValueOfKey('required')]
-            : [true, ""];
-}
-
-/**
- *
- * TODO: DELETE THIS FUNCTION
- * @param element
- * @returns {[boolean,string]}
- */
-function minMaxCheckerCharacter(element) {
-    let length = Number(element.val().length);
-    let minLength = Number(element.jfv("min"));
-    let maxLength = Number(element.jfv("max"));
-    let errorMessage = new JFV.Extractor('');
-
-    if (length < minLength) return [
-        false,
-        errorMessage
-            .reset(JFV_ERROR_MESSAGE.getValueOfKey('character.min'))
-            .setValue('minLength', minLength)
-            .getValue
-    ];
-    else if (length > maxLength) return [
-        false,
-        errorMessage
-            .reset(JFV_ERROR_MESSAGE.getValueOfKey('character.max'))
-            .setValue('maxLength', maxLength)
-            .getValue
-    ];
-    else return [true, ""];
-}
-
-/**
- * TODO: DELETE THIS FUNCTION
- *
- * @param element
- * @returns {[boolean,string]}
- */
-function equalChecker(element) {
-    let length = Number(element.val().length);
-    let equalLength = Number(element.jfv("equal")) ? Number(element.jfv("equal")) : 2;
-
-    let errorMessage = new JFV.Extractor(JFV_ERROR_MESSAGE.getValueOfKey('character.max'));
-
-    return length === equalLength
-        ? [true, ""]
-        : [
-            false,
-            errorMessage
-                .setValue('equalLength', equalLength)
-                .getValue
-        ];
-}
-
-
-/**
- * This one handles the confirmation of a password
- *
- * It means that it checks if a password field and its confirmation one are equals
- *
- * @param element
- * @returns {[boolean,string]}
- */
-function passwordConfirmationChecker(element){
-    let password = $('#' + ( element.jfv("ref") ? element.jfv("ref") : 'password')) ;
-
-    if(element.val() !== password.val()) return [false, JFV_ERROR_MESSAGE.getValueOfKey('password.confirmation')];
-    else return [true, ""];
-}
 
 /**
  * This function manages the coloration of valid indicator
@@ -670,15 +729,18 @@ function passwordConfirmationChecker(element){
  * @param element
  */
 function setValidIndicator(element) {
+
+    JFV_DOM_TOOLS.removeErrorMessage(element[0]);
+
     element.removeClass(validationCLass.input[1], validationCLass.input[2]);
     element.addClass(validationCLass.input[0]);
 
     // check whether the input's label will be modified
-    if(element.jfv("label")) {
+    if(jfv(element, "label")) {
 
         // Get the LABEL Element of the element
-        let label = $("label[for="+ element.jfv("label") +"]");
-        if(label.length <= 0) label = $('#' + element.jfv("label"));
+        let label = $("label[for="+ jfv(element, "label") +"]");
+        if(label.length <= 0) label = $('#' + jfv(element, "label"));
 
         try
         {
@@ -699,22 +761,20 @@ function setValidIndicator(element) {
 function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit = false){
     // Color input in red or blue
     if(isOnSubmit) {
-
         element.removeClass(validationCLass.input[0], validationCLass.input[2]);
         element.addClass(validationCLass.input[1]);
     } else {
-
         element.removeClass(validationCLass.input[0], validationCLass.input[1]);
         element.addClass(validationCLass.input[2]);
     }
 
     // check whether the input's label will be modified
-    if(element.jfv("label")) {
+    if(jfv(element, "label")) {
         try
         {
             // Get the LABEL Element of the element
-            let label = $("label[for="+ element.jfv("label") +"]");
-            if(label.length <= 0) label = $('#' + element.jfv("label"));
+            let label = $("label[for="+ jfv(element, "label") +"]");
+            if(label.length <= 0) label = $('#' + jfv(element, "label"));
 
             // Set red or blue color on the input label if it exist
             if(isOnSubmit) {
@@ -741,20 +801,24 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
  * @param isPasswordInput
  */
 function setInvalidErrorMessage(element, errorMessage, isOnSubmit, isPasswordInput) {
-    let newNode = document.createElement("h6");
-    newNode.classList.add("jfv-display-error-message");
-    newNode.innerHTML = errorMessage;
 
-    insertAfter(newNode, element, isPasswordInput);
-
-    if(isOnSubmit) {
-        newNode.classList.remove(validationCLass.label[2]);
-        newNode.classList.add(validationCLass.label[1]);
+    if(JFV_DOM_TOOLS.hasErrorMessage(element)) {
+        JFV_DOM_TOOLS.updateErrorMessage(element, errorMessage);
     }
     else {
-        newNode.classList.remove(validationCLass.label[1]);
-        newNode.classList.add(validationCLass.label[2]);
+        const newErrorNode = JFV_DOM_TOOLS.createErrorNode(element, errorMessage);
+        insertAfter(newErrorNode, element, isPasswordInput);
     }
+
+
+    /*if(isOnSubmit) {
+        newErrorNode.classList.remove(validationCLass.label[2]);
+        newErrorNode.classList.add(validationCLass.label[1]);
+    }
+    else {
+        newErrorNode.classList.remove(validationCLass.label[1]);
+        newErrorNode.classList.add(validationCLass.label[2]);
+    }*/
 }
 
 /**
@@ -802,9 +866,9 @@ function once(fn, context) {
     };
 }
 
-const blurEventOnInput = once(function (element) {
+/*const blurEventOnInput = once(function (element) {
     element.on("blur", function() { removeErrorMessage(); });
-});
+});*/
 
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
@@ -818,63 +882,63 @@ const blurEventOnInput = once(function (element) {
  * @returns {[boolean|string]}
  */
 function secondTypeValidator(element) {
-    let secondType = $(element).jfv("type");
+    let secondType = jfv(element,"type");
 
     //if(secondType === 'phone') return phoneChecker(element);
-    if(secondType === "required") return requiredChecker(element);
-    else if(secondType === "empty") return emptyChecker(element);
-    else if(secondType === "range") return minMaxCheckerCharacter(element);
-    else if(secondType === "equal") return equalChecker(element);
-    else if(secondType === "number") return numberChecker(element);
+    if(secondType === "required") return JFV_VALIDATOR.requiredChecker(element);
+    else if(secondType === "empty") return JFV_VALIDATOR.emptyChecker(element);
+    else if(secondType === "range") return JFV_VALIDATOR.minMaxCheckerCharacter(element);
+    else if(secondType === "equal") return JFV_VALIDATOR.equalChecker(element);
+    else if(secondType === "number") return JFV_VALIDATOR.numberChecker(element);
     else return [true, ""];
 }
 
 /**
  * This function validate an input of a form
- * @param element Input to validate
+ * @param {HTMLElement} element Input to validate
  * @param isOnSubmit
  * @returns {boolean}
  */
 function inputValidator(element, isOnSubmit = false) {
     let object = [true, ""];
-    let type = element.prop('type');
+    let type = element.getAttribute('type');
     let isPasswordInput = false;
 
     // remove previous message to avoid case like the input now is valid
-    removeErrorMessage();
+    // removeErrorMessage();
 
     // Call the blur effect in order to remove the error message on blur
     // Note: This this will be executed only once :)
-    blurEventOnInput(element);
+    // blurEventOnInput(element);
 
     // Call of the different type of validation
-    switch (element.prop('tagName')) {
+    switch (element.tagName) {
         case 'INPUT':
-            if(element.jfv("optional") && element.val() === "") object = [true, ""];
-            else if(type === 'email') object = emailChecker(element);
-            else if(type === 'number') object = numberChecker(element);
+            if(jfv(element, "optional") && element.value === "") object = [true, ""];
+            else if(type === 'email') object = JFV_VALIDATOR.emailChecker(element);
+            else if(type === 'number') object = JFV_VALIDATOR.numberChecker(element);
 
             // check for password input according to our password input behavior
-            else if(element.jfv("type") && element.jfv("type") === 'password')
+            else if(jfv(element, "type") && jfv(element, "type") === 'password')
             {
                 isPasswordInput = true;
 
                 // Check if the input is the confirmation of password
-                if(element.jfv("ref")) object = passwordConfirmationChecker(element);
+                if(jfv(element, "ref")) object = JFV_VALIDATOR.passwordConfirmationChecker(element);
 
                 // Else apply the minMaxChecker in order to specify the length of the password
-                else object = minMaxCheckerCharacter(element);
+                else object = JFV_VALIDATOR.minMaxCheckerCharacter(element);
             }
 
             else if(type === 'text')
             {
-                if(element.jfv("type"))
+                if(jfv(element, "type"))
                     object = secondTypeValidator(element);
             }
             break;
 
         case 'TEXTAREA':
-            if(element.jfv("type"))
+            if(jfv(element, "type"))
                 object = secondTypeValidator(element);
             break;
 
@@ -889,8 +953,8 @@ function inputValidator(element, isOnSubmit = false) {
 
     // Color the element and/or its label according to the value of object[0]
     object[0] === true
-        ? setValidIndicator(element)
-        : setInvalidIndicator(element, object[1], isPasswordInput, isOnSubmit);
+        ? setValidIndicator($(element))
+        : setInvalidIndicator($(element), object[1], isPasswordInput, isOnSubmit);
 
     return object[0];
 
@@ -900,7 +964,6 @@ function inputValidator(element, isOnSubmit = false) {
  ** * * * * * * * * * * * * *    E  N  D    * * * * * * * * * * * * * * * **
  *
  ** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
-
 
 
 /**
@@ -919,33 +982,69 @@ function inputValidator(element, isOnSubmit = false) {
 function validator(form, isOnSubmit = false) {
     let isValidArray = [];
 
-    if(form.length > 0 && form.prop('tagName') === 'FORM') {
-        let items = form.find('input, textarea');
+    if(form.length > 0 && form.tagName === 'FORM') {
+        const items = form.querySelectorAll('input, textarea');
 
-        items.each(function (index) {
-            let element = $(this);
+        for(const element of items.values()) {
+            if(!jfv(element,'validate')) {
+                if(element.getAttribute('type')
+                    && element.getAttribute('type') !== "hidden"
+                    && element.getAttribute('type') !== "file") {
 
-            if(element.jfv('validate') !== 'false' && !element.jfv('validate')) {
-                if(element.prop('type')
-                    && element.prop('type') !== "hidden"
-                    && element.prop('type') !== "file") {
+                    // Set the jfv id
+                    JFV_DOM_TOOLS.setJfvIdAttribute(element);
 
                     // Bind focus event to handle validation
-                    element.on("focus", function() {
-                        inputValidator(element);
-                    });
+                    // Check for older bound in order to have the handler only once
+                    if(!JFV_EVENT_ITEM_ARR.FOCUS.has(jfv(element, 'id'))) {
+                        element.addEventListener("focus", function() { inputValidator(element); });
+                        JFV_EVENT_ITEM_ARR.FOCUS.add(jfv(element, 'id'));
+                    }
 
                     // Add keyup event to increase the management of validation
-                    element.on("keyup", function() {
-                        inputValidator(element);
-                    });
+                    // Check for older bound in order to have the handler only once
+                    if(!JFV_EVENT_ITEM_ARR.KEYUP.has(jfv(element, 'id'))) {
+                        element.addEventListener("keyup", function() { inputValidator(element); });
+                        JFV_EVENT_ITEM_ARR.KEYUP.add(jfv(element, 'id'));
+                    }
 
                     if(isOnSubmit) inputValidator(element, true) ?
                         isValidArray.push(true) :
                         isValidArray.push(false);
                 }
             }
-        });
+        }
+        /*items.each(function (index) {
+            let element = $(this);
+
+            if(!jfv(element,'validate')) {
+                if(element.prop('type')
+                    && element.prop('type') !== "hidden"
+                    && element.prop('type') !== "file") {
+
+                    // Set the jfv id
+                    JFV_DOM_TOOLS.setJfvIdAttribute(element);
+
+                    // Bind focus event to handle validation
+                    // Check for older bound in order to have the handler only once
+                    if(!JFV_EVENT_ITEM_ARR.FOCUS.has(jfv(element[0], 'id'))) {
+                        element.on("focus", function() { inputValidator(element[0]); });
+                        JFV_EVENT_ITEM_ARR.FOCUS.add(jfv(element[0], 'id'));
+                    }
+
+                    // Add keyup event to increase the management of validation
+                    // Check for older bound in order to have the handler only once
+                    if(!JFV_EVENT_ITEM_ARR.KEYUP.has(jfv(element[0], 'id'))) {
+                        element.on("keyup", function() { inputValidator(element[0]); });
+                        JFV_EVENT_ITEM_ARR.KEYUP.add(jfv(element[0], 'id'));
+                    }
+
+                    if(isOnSubmit) inputValidator(element[0], true) ?
+                        isValidArray.push(true) :
+                        isValidArray.push(false);
+                }
+            }
+        });*/
 
         return isValidArray.every(a => a === true);
     }
@@ -973,17 +1072,17 @@ function validator(form, isOnSubmit = false) {
 function runValidator() {
     let isAjax = false;
 
-    $(".jfv-form").each(function(index) {
-        const form = $(this); // The form of the index lap
+    // Get all the form to work on
+    const forms = document.querySelectorAll('.jfv-form');
 
-        // Start the validation of the form form
-        // And of course it will bind the event watcher to each input
+    for(const form of forms.values()) {
+        // Apply the validator to each form in order to initialize the event listener
         validator(form, false);
 
         // Check whether the form is going to be send through ajax or not
-        if($(form).jfv("ajax") === "true") isAjax = true;
+        if(jfv(form, "ajax") === "true") isAjax = true;
 
-        form.on("submit", function(event) {
+        form.addEventListener("submit", function(event) {
             event.preventDefault();
 
             // Check the form one last time before sending it or not
@@ -995,7 +1094,7 @@ function runValidator() {
             // It means the form is not correct so cancel the the request
             else event.stopImmediatePropagation();
         });
-    });
+    }
 }
 /** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **
  *
