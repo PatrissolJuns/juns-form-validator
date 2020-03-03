@@ -484,6 +484,7 @@ const JFV = {
          *                                                                         *
          *  @param {HTMLElement} element                                           *
          *  @param {string} attribute                                             *
+         *  @return {Array|string|undefined}                                                                       *
          *                                                                         *
          * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
          */
@@ -495,7 +496,7 @@ const JFV = {
 
             if(attribute === '') {
                 // First obtain an array which contains only a couple of jfv attribute and its value
-                const jfvEntries = Object.entries(element.attributes)
+                const jfvEntries = Object.entries($(element)[0].attributes)
                     .map(attr => [attr[1].name, attr[1].value])
                     .filter(a => /jfv/.test(a[0]));
 
@@ -509,7 +510,7 @@ const JFV = {
 
             // Map the array of all attributes to get a new one with only attribute's name and value
             // Filter the obtained array to get only the jfv attribute and its value
-            const result = Object.entries(element.attributes)
+            const result = Object.entries($(element)[0].attributes)
                 .map(attr => [attr[1].name, attr[1].value])
                 .filter(a => regex.test(a[0]));
 
@@ -631,8 +632,8 @@ const JFV = {
             let numberResult = /^[+-]?\d+(\.\d+)?$/.test(element.val()) ? [true, ""] : [false, JFV_ERROR_MESSAGE.getValueOfKey('number.number')];
 
             let rangeResult = [true, ""], // Initialize the rangeResult variable
-                minLength = Number(element.jfv("min")), // Get the minimum value set
-                maxLength = Number(element.jfv("max")); // Get the maximum value set
+                minLength = Number(jfv(element, "min")), // Get the minimum value set
+                maxLength = Number(jfv(element, "max")); // Get the maximum value set
 
             // Get the parsed value of element in Number
             let length = Number(element.val());
@@ -681,7 +682,7 @@ const JFV = {
 
             else {
                 // Get the number that the value should be equal
-                let equalLength = element.jfv("equal");
+                let equalLength = jfv(element, "equal");
 
                 if (equalLength) {
                     rangeResult = (length <= maxLength)
@@ -714,7 +715,7 @@ const JFV = {
          * @returns {[boolean,string]}
          */
         static passwordConfirmationChecker(element){
-            let password = $('#' + ( element.jfv("ref") ? element.jfv("ref") : 'password')) ;
+            let password = $('#' + ( jfv(element, "ref") ? jfv(element, "ref") : 'password')) ;
 
             if(element.val() !== password.val()) return [false, JFV_ERROR_MESSAGE.getValueOfKey('password.confirmation')];
             else return [true, ""];
@@ -728,8 +729,8 @@ const JFV = {
          */
         static minMaxCheckerCharacter(element) {
             let length = Number(element.val().length);
-            let minLength = Number(element.jfv("min"));
-            let maxLength = Number(element.jfv("max"));
+            let minLength = Number(jfv(element, "min"));
+            let maxLength = Number(jfv(element, "max"));
             let errorMessage = new JFV.Extractor('');
 
             if (length < minLength) return [
@@ -774,7 +775,7 @@ const JFV = {
          */
         static equalChecker(element) {
             let length = Number(element.val().length);
-            let equalLength = Number(element.jfv("equal")) ? Number(element.jfv("equal")) : 2;
+            let equalLength = Number(jfv(element, "equal")) ? Number(jfv(element, "equal")) : 2;
 
             let errorMessage = new JFV.Extractor(JFV_ERROR_MESSAGE.getValueOfKey('character.max'));
 
@@ -828,11 +829,11 @@ function setValidIndicator(element) {
     element.addClass(validationCLass.input[0]);
 
     // check whether the input's label will be modified
-    if(element.jfv("label")) {
+    if(jfv(element, "label")) {
 
         // Get the LABEL Element of the element
-        let label = $("label[for="+ element.jfv("label") +"]");
-        if(label.length <= 0) label = $('#' + element.jfv("label"));
+        let label = $("label[for="+ jfv(element, "label") +"]");
+        if(label.length <= 0) label = $('#' + jfv(element, "label"));
 
         try
         {
@@ -861,12 +862,12 @@ function setInvalidIndicator(element, errorMessage, isPasswordInput, isOnSubmit 
     }
 
     // check whether the input's label will be modified
-    if(element.jfv("label")) {
+    if(jfv(element, "label")) {
         try
         {
             // Get the LABEL Element of the element
-            let label = $("label[for="+ element.jfv("label") +"]");
-            if(label.length <= 0) label = $('#' + element.jfv("label"));
+            let label = $("label[for="+ jfv(element, "label") +"]");
+            if(label.length <= 0) label = $('#' + jfv(element, "label"));
 
             // Set red or blue color on the input label if it exist
             if(isOnSubmit) {
@@ -1006,17 +1007,17 @@ function inputValidator(element, isOnSubmit = false) {
     // Call of the different type of validation
     switch (element.prop('tagName')) {
         case 'INPUT':
-            if(element.jfv("optional") && element.val() === "") object = [true, ""];
+            if(jfv(element, "optional") && element.val() === "") object = [true, ""];
             else if(type === 'email') object = JFV_VALIDATOR.emailChecker(element);
             else if(type === 'number') object = JFV_VALIDATOR.numberChecker(element);
 
             // check for password input according to our password input behavior
-            else if(element.jfv("type") && element.jfv("type") === 'password')
+            else if(jfv(element, "type") && jfv(element, "type") === 'password')
             {
                 isPasswordInput = true;
 
                 // Check if the input is the confirmation of password
-                if(element.jfv("ref")) object = JFV_VALIDATOR.passwordConfirmationChecker(element);
+                if(jfv(element, "ref")) object = JFV_VALIDATOR.passwordConfirmationChecker(element);
 
                 // Else apply the minMaxChecker in order to specify the length of the password
                 else object = JFV_VALIDATOR.minMaxCheckerCharacter(element);
@@ -1024,13 +1025,13 @@ function inputValidator(element, isOnSubmit = false) {
 
             else if(type === 'text')
             {
-                if(element.jfv("type"))
+                if(jfv(element, "type"))
                     object = secondTypeValidator(element);
             }
             break;
 
         case 'TEXTAREA':
-            if(element.jfv("type"))
+            if(jfv(element, "type"))
                 object = secondTypeValidator(element);
             break;
 
@@ -1074,13 +1075,17 @@ function inputValidator(element, isOnSubmit = false) {
 function validator(form, isOnSubmit = false) {
     let isValidArray = [];
 
-    if(form.length > 0 && form.prop('tagName') === 'FORM') {
-        let items = form.find('input, textarea');
+    if(form.length > 0 && $(form)[0].tagName === 'FORM') {
+        let items = $(form).find('input, textarea');
+        // const items = form.querySelectorAll('input, textarea');
 
+        /*for(const element of items.values()) {
+
+        }*/
         items.each(function (index) {
             let element = $(this);
 
-            if(element.jfv('validate') !== 'false' && !element.jfv('validate')) {
+            if(!jfv(element,'validate')) {
                 if(element.prop('type')
                     && element.prop('type') !== "hidden"
                     && element.prop('type') !== "file") {
