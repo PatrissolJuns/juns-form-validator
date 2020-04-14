@@ -1,0 +1,26 @@
+{
+  "name": "juns-form-validator",
+  "version": "1.2.0",
+  "description": "A powerful HTML form checker",
+  "main": "jfv.js",
+  "scripts": {
+    "build": "npx babel jfv.js --out-file jfv.min.js --presets minify --no-comments --watch"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "babel-minify": "^0.5.0",
+    "babel-preset-minify": "^0.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PatrissolJuns/juns-form-validator.git"
+  },
+  "author": "PatrissolJuns",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PatrissolJuns/juns-form-validator/issues"
+  },
+  "homepage": "https://github.com/PatrissolJuns/juns-form-validator#readme"
+}
