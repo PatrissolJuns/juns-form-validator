@@ -7,7 +7,7 @@ PATRISSOL KENFACK **#PatrissolJuns**
 
 ## About Juns Form Validator: JFV
 
-JFV (Juns Form Validator) is a set of functions which provides for a website some usefully shortcuts to handle verification of HTML forms. 
+JFV (Juns Form Validator) is a set of functions that provides for a website some useful shortcuts to handle the verification of HTML forms. 
 
 It is very easy to use and setup.
 
